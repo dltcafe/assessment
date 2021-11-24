@@ -5,11 +5,18 @@ use crate::Valuation;
 #[derive(Debug)]
 pub struct Numeric<'domain> {
     domain: &'domain Quantitative,
-    // TODO This will change to an Optional<EnumX> or something similar
-    value: u32,
+    value: Value,
+}
+
+/// Numeric valuation options
+#[derive(Debug, PartialEq)]
+pub enum Value {
+    Integer(i32),
+    Real(f64),
 }
 
 impl<'domain> Numeric<'domain> {
+
     /// Creates a new valuation
     ///
     /// # Examples
@@ -18,18 +25,44 @@ impl<'domain> Numeric<'domain> {
     /// let min = 1.0;
     /// let max = 5.7;
     ///
-    /// let value_a = 4;
-    /// let value_b = 3;
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let int = Value::Integer(4);
+    /// let real = Value::Real(3.3);
     ///
     /// let domain = assessment::domain::Quantitative::new(min, max);
-    /// dbg!(assessment::valuation::Numeric::new(&domain, value_a));
-    /// dbg!(assessment::valuation::Numeric::new(&domain, value_b));
+    /// dbg!(assessment::valuation::Numeric::new(&domain, int));
+    /// dbg!(assessment::valuation::Numeric::new(&domain, real));
     /// ```
     ///
     /// # Panics
     ///
     /// If `value` is not a valid assessment in `domain`
-    pub fn new(domain: &'domain Quantitative, value: u32) -> Self {
+    pub fn new(domain: &'domain Quantitative, value: Value) -> Self {
+        match value {
+            Value::Integer(v) => Numeric::new_integer(domain, v),
+            Value::Real(v) => Numeric::new_real(domain, v),
+        }
+    }
+
+    /// Creates a new integer valuation
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// let value = 4;
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// dbg!(assessment::valuation::Numeric::new_integer(&domain, value));
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// If `value` is not a valid assessment in `domain`
+    pub fn new_integer(domain: &'domain Quantitative, value: i32) -> Self {
         if !domain.valid_assessment(value as f64) {
             panic!(
                 "Value {} cannot be used as a valuation in domain {:?}",
@@ -37,7 +70,41 @@ impl<'domain> Numeric<'domain> {
             );
         }
 
-        Self { domain, value }
+        Self {
+            domain,
+            value: Value::Integer(value),
+        }
+    }
+
+    /// Creates a new real valuation
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// let value = 4.2;
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// dbg!(assessment::valuation::Numeric::new_real(&domain, value));
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// If `value` is not a valid assessment in `domain`
+    pub fn new_real(domain: &'domain Quantitative, value: f64) -> Self {
+        if !domain.valid_assessment(value) {
+            panic!(
+                "Value {} cannot be used as a valuation in domain {:?}",
+                value, domain
+            );
+        }
+
+        Self {
+            domain,
+            value: Value::Real(value),
+        }
     }
 
     /// Returns valuation value
@@ -48,15 +115,122 @@ impl<'domain> Numeric<'domain> {
     /// let min = 1.0;
     /// let max = 5.7;
     ///
-    /// let value = 4;
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let int = 4;
+    /// let value = Value::Integer(int);
     ///
     /// let domain = assessment::domain::Quantitative::new(min, max);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
-    /// assert_eq!(valuation.value(), value);
+    /// if let Value::Integer(v) = valuation.value() {
+    ///     assert_eq!(*v, int);
+    /// } else {
+    ///     panic!("Result must be a Value::Integer");
+    /// }
     /// ```
-    pub fn value(&self) -> u32 {
-        self.value
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let real = 4.3;
+    /// let value = Value::Real(real);
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
+    /// if let Value::Real(v) = valuation.value() {
+    ///     assert_eq!(*v, real);
+    /// } else {
+    ///     panic!("Result must be a Value::Real");
+    /// }
+    /// ```
+    pub fn value(&self) -> &Value {
+        &self.value
+    }
+
+    /// Returns value as integer.
+    ///
+    /// If the internal value is a Value::Real, it may lose accuracy.
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let aux = 4;
+    /// let value = Value::Integer(aux);
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
+    /// assert_eq!(valuation.value_integer(), aux);
+    /// ```
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let aux_real = 4.3;
+    /// let aux_int  = aux_real as i32;
+    ///
+    /// let value = Value::Real(aux_real);
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
+    /// assert_ne!(valuation.value_integer() as f64, aux_real);
+    /// assert_eq!(valuation.value_integer(), aux_int);
+    /// ```
+    pub fn value_integer(&self) -> i32 {
+        match self.value {
+            Value::Integer(v) => v,
+            Value::Real(v) => v as i32,
+        }
+    }
+
+    /// Returns value as real.
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let aux = 4;
+    /// let value = Value::Integer(aux);
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
+    /// assert_eq!(valuation.value_real(), aux as f64);
+    /// ```
+    ///
+    /// ```rust
+    /// let min = 1.0;
+    /// let max = 5.7;
+    ///
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let aux = 4.3;
+    /// let value = Value::Real(aux);
+    ///
+    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
+    /// assert_eq!(valuation.value_real(), aux);
+    /// ```
+    pub fn value_real(&self) -> f64 {
+        match self.value {
+            Value::Integer(v) => v as f64,
+            Value::Real(v) => v,
+        }
     }
 
     /// Returns valuation domain
@@ -67,10 +241,13 @@ impl<'domain> Numeric<'domain> {
     /// let min = 1.0;
     /// let max = 5.7;
     ///
-    /// let value = 4;
+    /// use assessment::valuation::numeric::Value;
+    ///
+    /// let value = Value::Integer(4);
     ///
     /// let domain = assessment::domain::Quantitative::new(min, max);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
+    ///
     /// assert_eq!(*valuation.domain(), domain);
     /// ```
     pub fn domain(&self) -> &'domain Quantitative {
@@ -91,6 +268,6 @@ mod tests {
         let value = min - 1.0;
 
         let domain = crate::domain::Quantitative::new(min, max);
-        crate::valuation::Numeric::new(&domain, value as u32);
+        crate::valuation::Numeric::new_real(&domain, value);
     }
 }

@@ -1,5 +1,6 @@
 //! Valuations used for assessments
 
+pub use numeric::Value as NumericValue;
 pub use numeric::Numeric;
 
 /// Numeric struct and related implementations
