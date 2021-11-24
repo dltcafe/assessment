@@ -21,17 +21,17 @@ impl<'domain> Numeric<'domain> {
     /// # Examples
     ///
     /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let int = Value::Integer(4);
     /// let real = Value::Real(3.3);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
-    /// dbg!(assessment::valuation::Numeric::new(&domain, int));
-    /// dbg!(assessment::valuation::Numeric::new(&domain, real));
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
+    /// assessment::valuation::Numeric::new(&domain, int);
+    /// assessment::valuation::Numeric::new(&domain, real);
     /// ```
     ///
     /// # Panics
@@ -49,14 +49,14 @@ impl<'domain> Numeric<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// let value = 4;
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
-    /// dbg!(assessment::valuation::Numeric::new_integer(&domain, value));
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
+    /// assessment::valuation::Numeric::new_integer(&domain, value);
     /// ```
     ///
     /// # Panics
@@ -80,13 +80,13 @@ impl<'domain> Numeric<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// let value = 4.2;
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// dbg!(assessment::valuation::Numeric::new_real(&domain, value));
     /// ```
     ///
@@ -111,16 +111,16 @@ impl<'domain> Numeric<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let int = 4;
     /// let value = Value::Integer(int);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// if let Value::Integer(v) = valuation.value() {
@@ -130,16 +130,16 @@ impl<'domain> Numeric<'domain> {
     /// }
     /// ```
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let real = 4.3;
     /// let value = Value::Real(real);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// if let Value::Real(v) = valuation.value() {
@@ -156,24 +156,24 @@ impl<'domain> Numeric<'domain> {
     ///
     /// If the internal value is a Value::Real, it may lose accuracy.
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let aux = 4;
     /// let value = Value::Integer(aux);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// assert_eq!(valuation.value_integer(), aux);
     /// ```
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
@@ -182,7 +182,7 @@ impl<'domain> Numeric<'domain> {
     ///
     /// let value = Value::Real(aux_real);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// assert_ne!(valuation.value_integer() as f64, aux_real);
@@ -197,31 +197,31 @@ impl<'domain> Numeric<'domain> {
 
     /// Returns value as real.
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let aux = 4;
     /// let value = Value::Integer(aux);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// assert_eq!(valuation.value_real(), aux as f64);
     /// ```
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let aux = 4.3;
     /// let value = Value::Real(aux);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// assert_eq!(valuation.value_real(), aux);
@@ -237,15 +237,15 @@ impl<'domain> Numeric<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// let min = 1.0;
-    /// let max = 5.7;
+    /// ```
+    /// let inf = 1.0;
+    /// let sup = 5.7;
     ///
     /// use assessment::valuation::numeric::Value;
     ///
     /// let value = Value::Integer(4);
     ///
-    /// let domain = assessment::domain::Quantitative::new(min, max);
+    /// let domain = assessment::domain::Quantitative::new(inf, sup);
     /// let valuation = assessment::valuation::Numeric::new(&domain, value);
     ///
     /// assert_eq!(*valuation.domain(), domain);
@@ -262,12 +262,12 @@ mod tests {
     #[test]
     #[should_panic]
     fn valuation_new_if_value_is_outside_domain_limits() {
-        let min = 1.0;
-        let max = 5.7;
+        let inf = 1.0;
+        let sup = 5.7;
 
-        let value = min - 1.0;
+        let value = inf - 1.0;
 
-        let domain = crate::domain::Quantitative::new(min, max);
+        let domain = crate::domain::Quantitative::new(inf, sup);
         crate::valuation::Numeric::new_real(&domain, value);
     }
 }
