@@ -16,7 +16,6 @@ pub enum Value {
 }
 
 impl<'domain> Numeric<'domain> {
-
     /// Creates a new valuation
     ///
     /// # Examples
@@ -40,6 +39,7 @@ impl<'domain> Numeric<'domain> {
     /// If `value` is not a valid assessment in `domain`
     pub fn new(domain: &'domain Quantitative, value: Value) -> Self {
         match value {
+            // TODO bad use of memory here...
             Value::Integer(v) => Numeric::new_integer(domain, v),
             Value::Real(v) => Numeric::new_real(domain, v),
         }
