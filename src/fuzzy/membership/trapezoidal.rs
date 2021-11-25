@@ -16,7 +16,28 @@ pub struct Trapezoidal {
     d: f32,
 }
 
+// // //
+// Traits implementations
+//
+
 impl Membership for Trapezoidal {}
+impl Display for Trapezoidal {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if self.is_triangular() {
+            write!(f, "({:.2}, {:.2}, {:.2})", self.a, self.b, self.d)
+        } else {
+            write!(
+                f,
+                "({:.2}, {:.2}, {:.2}, {:.2})",
+                self.a, self.b, self.c, self.d
+            )
+        }
+    }
+}
+
+// // //
+// Implementation
+//
 
 impl Trapezoidal {
     /// Trapezoidal membership function constructor
@@ -124,19 +145,5 @@ impl Trapezoidal {
     /// ```
     pub fn is_triangular(&self) -> bool {
         self.b == self.c
-    }
-}
-
-impl Display for Trapezoidal {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.is_triangular() {
-            write!(f, "({:.2}, {:.2}, {:.2})", self.a, self.b, self.d)
-        } else {
-            write!(
-                f,
-                "({:.2}, {:.2}, {:.2}, {:.2})",
-                self.a, self.b, self.c, self.d
-            )
-        }
     }
 }

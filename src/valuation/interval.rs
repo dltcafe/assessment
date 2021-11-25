@@ -9,6 +9,10 @@ pub struct Interval<'domain> {
     value: Value,
 }
 
+// // //
+// Enums
+//
+
 /// Interval valuation options
 #[derive(Debug, PartialEq)]
 pub enum Value {
@@ -247,6 +251,16 @@ impl Value {
         }
     }
 }
+
+// // //
+// Traits implementations
+//
+
+impl<'domain> Valuation for Interval<'domain> {}
+
+// // //
+// Implementation
+//
 
 impl<'domain> Interval<'domain> {
     /// Creates a new valuation
@@ -513,5 +527,3 @@ impl<'domain> Interval<'domain> {
         self.domain
     }
 }
-
-impl<'domain> Valuation for Interval<'domain> {}

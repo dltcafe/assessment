@@ -2,3 +2,6 @@
 
 /// Membership functions
 pub mod membership;
+
+/// Fussy label
+pub mod label;

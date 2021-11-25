@@ -7,7 +7,15 @@ pub struct Quantitative {
     sup: f64,
 }
 
+// // //
+// Traits implementations
+//
+
 impl Domain for Quantitative {}
+
+// // //
+// Implementation
+//
 
 impl Quantitative {
     /// Quantitative domain constructors
