@@ -9,6 +9,7 @@
 //! Note that the library is a **Work In Progress** and is **NOT READY YET**.
 
 pub mod domain;
+pub mod fuzzy;
 pub mod valuation;
 
 pub use domain::Domain;
