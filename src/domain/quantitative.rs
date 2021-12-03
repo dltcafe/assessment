@@ -18,7 +18,7 @@ impl Domain for Quantitative {}
 //
 
 impl Quantitative {
-    /// Quantitative domain constructors
+    /// Quantitative domain constructor
     ///
     /// # Params
     /// - `inf`: Domain inferior limit.

@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter};
 /// [a-d] is the base of the trapezoid and [b-c] is the center.
 ///
 /// If b=c the function is called **Triangular**.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Trapezoidal {
     a: f32,
     b: f32,

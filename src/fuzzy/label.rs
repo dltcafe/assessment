@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 /// Fuzzy label struct
 ///
 /// It is defined by a membership function and a name.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Label {
     name: String,
     membership: SupportedMembership,
@@ -15,7 +15,7 @@ pub struct Label {
 //
 
 /// Supported membership functions
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum SupportedMembership {
     Trapezoidal(membership::Trapezoidal),
 }
@@ -46,7 +46,10 @@ impl Label {
     /// Force `name::trim().to_lowercase() == name` and `name.length > 0`
     fn _force_valid_label_name(name: &str) {
         if name.trim().to_lowercase() != name {
-            panic!("Name without spaces and to lowercase should be equals to itself, provided \"{}\"",name);
+            panic!(
+                "Name without spaces and to lowercase should be equals to itself, provided \"{}\"",
+                name
+            );
         }
 
         if name.is_empty() {
