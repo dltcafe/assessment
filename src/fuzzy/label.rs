@@ -43,6 +43,17 @@ impl Display for Label {
 //
 
 impl Label {
+    /// Force `name::trim().to_lowercase() == name` and `name.length > 0`
+    fn _force_valid_label_name(name: &str) {
+        if name.trim().to_lowercase() != name {
+            panic!("Name without spaces and to lowercase should be equals to itself, provided \"{}\"",name);
+        }
+
+        if name.is_empty() {
+            panic!("Name is empty");
+        }
+    }
+
     /// Creates a new label
     ///
     /// # Params
@@ -60,7 +71,41 @@ impl Label {
     /// let label = Label::new(name, membership);
     /// assert_eq!(format!("{}", label), "a => (0.00, 0.50, 1.00)");
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// If `name.trim().len() != name.len()`
+    ///
+    /// ```should_panic
+    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    ///
+    /// let name = String::from(" a");
+    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
+    /// let label = Label::new(name, membership);
+    /// ```
+    ///
+    /// If `name.to_lowercase() != name`
+    ///
+    /// ```should_panic
+    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    ///
+    /// let name = String::from("A");
+    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
+    /// let label = Label::new(name, membership);
+    /// ```
+    ///
+    /// If `name.len() == 0`
+    ///
+    /// ```should_panic
+    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    ///
+    /// let name = String::from("");
+    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
+    /// let label = Label::new(name, membership);
+    /// ```
+    ///
     pub fn new(name: String, membership: SupportedMembership) -> Self {
+        Label::_force_valid_label_name(&name);
         Self { name, membership }
     }
 
