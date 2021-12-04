@@ -62,8 +62,8 @@ impl Qualitative {
     ///
     /// // Or with a vector of (valid) labels
     /// let labels = trapezoidal_labels![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     /// Qualitative::new(labels);
     /// ```
@@ -76,8 +76,8 @@ impl Qualitative {
     /// # use assessment::domain::Qualitative;
     /// # use assessment::trapezoidal_labels;
     /// let labels = trapezoidal_labels![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "a" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "a" => vec![0.0, 1.0, 1.0]
     /// ];
     ///
     /// Qualitative::new(labels);
@@ -101,8 +101,8 @@ impl Qualitative {
     /// ```
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     /// assert_eq!(domain.cardinality(), 2);
     /// ```
@@ -121,8 +121,8 @@ impl Qualitative {
     /// ```
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     ///
     /// for (v, e) in [
@@ -147,8 +147,8 @@ impl Qualitative {
     /// ```
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     ///
     /// for (v, e) in [
@@ -176,8 +176,8 @@ impl Qualitative {
     /// # use assessment::trapezoidal_labels;
     /// # use assessment::domain::Qualitative;
     /// let labels = trapezoidal_labels![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     ///
     /// let domain = Qualitative::new(labels.to_vec());
@@ -209,8 +209,8 @@ impl Qualitative {
     /// # use assessment::trapezoidal_labels;
     /// # use assessment::domain::Qualitative;
     /// let labels = trapezoidal_labels![
-    ///     "a" => &vec![0.0, 0.0, 1.0],
-    ///     "b" => &vec![0.0, 1.0, 1.0]
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
     /// ];
     ///
     /// let domain = Qualitative::new(labels.to_vec());
@@ -244,8 +244,8 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```
 /// # use assessment::qualitative_domain;
 /// let domain = qualitative_domain![
-///     "a" => &vec![0.0, 0.0, 1.0],
-///     "b" => &vec![0.0, 1.0, 1.0]
+///     "a" => vec![0.0, 0.0, 1.0],
+///     "b" => vec![0.0, 1.0, 1.0]
 /// ];
 ///
 /// assert_eq!(
@@ -261,7 +261,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```should_panic
 /// # use assessment::qualitative_domain;
 /// qualitative_domain![
-///     " a" => &vec![0.0, 0.0, 1.0]
+///     " a" => vec![0.0, 0.0, 1.0]
 /// ];
 /// ```
 ///
@@ -270,7 +270,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```should_panic
 /// # use assessment::qualitative_domain;
 /// qualitative_domain![
-///     "a" => &vec![0.0, 0.0, 1.0, 1.0, 1.0]
+///     "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
 /// ];
 /// ```
 ///
@@ -279,8 +279,8 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```should_panic
 /// # use assessment::qualitative_domain;
 /// qualitative_domain![
-///     "a" => &vec![0.0, 0.0, 1.0],
-///     "a" => &vec![0.0, 1.0, 1.0]
+///     "a" => vec![0.0, 0.0, 1.0],
+///     "a" => vec![0.0, 1.0, 1.0]
 /// ];
 /// ```
 #[macro_export]

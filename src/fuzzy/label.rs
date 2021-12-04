@@ -58,7 +58,9 @@ impl Label {
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
     /// let name = String::from("a");
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
     /// let label = Label::new(name, membership);
     /// assert_eq!(format!("{}", label), "a => (0.00, 0.50, 1.00)");
     /// ```
@@ -70,8 +72,10 @@ impl Label {
     /// ```should_panic
     /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
     /// let name = String::from(" a");
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
-    /// let label = Label::new(name, membership);
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
+    /// Label::new(name, membership);
     /// ```
     ///
     /// If `name.to_lowercase() != name`.
@@ -79,8 +83,10 @@ impl Label {
     /// ```should_panic
     /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
     /// let name = String::from("A");
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
-    /// let label = Label::new(name, membership);
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
+    /// Label::new(name, membership);
     /// ```
     ///
     /// If `name.len() == 0`.
@@ -88,8 +94,10 @@ impl Label {
     /// ```should_panic
     /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
     /// let name = String::from("");
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
-    /// let label = Label::new(name, membership);
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
+    /// Label::new(name, membership);
     /// ```
     ///
     pub fn new(name: String, membership: SupportedMembership) -> Self {
@@ -105,11 +113,11 @@ impl Label {
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
     /// let name = String::from("a");
-    /// let aux = name.clone();
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
-    /// let label = Label::new(name, membership);
-    ///
-    /// assert_eq!(*label.name(), aux);
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
+    /// let label = Label::new(name.clone(), membership);
+    /// assert_eq!(*label.name(), name);
     /// ```
     pub fn name(&self) -> &String {
         &self.name
@@ -123,9 +131,10 @@ impl Label {
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
     /// let name = String::from("a");
-    /// let membership = SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]));
+    /// let membership = SupportedMembership::Trapezoidal(
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// );
     /// let label = Label::new(name, membership);
-    ///
     /// assert_eq!(format!("{}", *label.membership()), "(0.00, 0.50, 1.00)");
     /// ```
     pub fn membership(&self) -> &SupportedMembership {
@@ -144,8 +153,8 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```
 /// # use assessment::trapezoidal_labels;
 /// let labels = trapezoidal_labels![
-///     "a" => &vec![0.0, 0.0, 1.0],
-///     "b" => &vec![0.0, 1.0, 1.0]
+///     "a" => vec![0.0, 0.0, 1.0],
+///     "b" => vec![0.0, 1.0, 1.0]
 /// ];
 ///
 /// assert_eq!(labels.len(), 2);
@@ -160,7 +169,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```should_panic
 /// # use assessment::trapezoidal_labels;
 /// trapezoidal_labels![
-///     " a" => &vec![0.0, 0.0, 1.0]
+///     " a" => vec![0.0, 0.0, 1.0]
 /// ];
 /// ```
 ///
@@ -169,7 +178,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```should_panic
 /// # use assessment::trapezoidal_labels;
 /// trapezoidal_labels![
-///     "a" => &vec![0.0, 0.0, 1.0, 1.0, 1.0]
+///     "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
 /// ];
 /// ```
 #[macro_export]

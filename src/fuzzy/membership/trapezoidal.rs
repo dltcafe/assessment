@@ -44,9 +44,9 @@ impl Trapezoidal {
     /// ```
     /// # use assessment::fuzzy::membership::trapezoidal::*;
     /// for (v, e) in [
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3]), "(0.00, 0.10, 0.20, 0.30)"),
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.1, 0.2]), "(0.00, 0.10, 0.20)"),
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2]), "(0.00, 0.10, 0.20)")
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), "(0.00, 0.10, 0.20, 0.30)"),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "(0.00, 0.10, 0.20)"),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), "(0.00, 0.10, 0.20)")
     /// ] {
     ///     assert_eq!(format!("{}", v), e);
     /// }
@@ -57,29 +57,29 @@ impl Trapezoidal {
     /// If `limits.len() < 3`.
     /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(&vec![0.0, 0.1]);
+    /// Trapezoidal::new(vec![0.0, 0.1]);
     /// ```
     ///
     /// If `limits.len() > 4`.
     /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3, 0.4]);
+    /// Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3, 0.4]);
     /// ```
     ///
     /// If `limits` are not sorted in ascending order.
     /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(&vec![1.0, 0.1, 0.2, 0.3]);
+    /// Trapezoidal::new(vec![1.0, 0.1, 0.2, 0.3]);
     /// ```
     /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(&vec![1.0, 1.1, 0.2, 0.3]);
+    /// Trapezoidal::new(vec![1.0, 1.1, 0.2, 0.3]);
     /// ```
     /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(&vec![1.0, 1.1, 1.2, 0.3]);
+    /// Trapezoidal::new(vec![1.0, 1.1, 1.2, 0.3]);
     /// ```
-    pub fn new(limits: &[f32]) -> Self {
+    pub fn new(limits: Vec<f32>) -> Self {
         let len = &limits.len();
 
         // Force 3/4 elements
@@ -112,9 +112,9 @@ impl Trapezoidal {
     /// ```
     /// # use assessment::fuzzy::membership::trapezoidal::*;
     /// for (v, e) in [
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3]), false),
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.1, 0.2]), true),
-    ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2]), true)
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), false),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), true),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), true)
     /// ] {
     ///     assert_eq!(v.is_triangular(), e);
     /// }
