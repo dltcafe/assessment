@@ -1,8 +1,10 @@
 use super::Domain;
 use crate::fuzzy::label::Label;
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 
 /// Qualitative domains
+#[derive(Debug)]
 pub struct Qualitative {
     labels: Vec<Label>,
 }
@@ -12,6 +14,12 @@ pub struct Qualitative {
 //
 
 impl Domain for Qualitative {}
+
+impl Display for Qualitative {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}]", self.labels.iter().map(|v| format!("{}", v)).collect::<Vec<String>>().join(", "))
+    }
+}
 
 // // //
 // Implementation
@@ -50,37 +58,12 @@ impl Qualitative {
     /// ```
     ///
     /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// use assessment::trapezoidal_labels;
     ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.5, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// assessment::domain::Qualitative::new(labels);
-    /// ```
-    ///
-    /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
+    /// let mut labels = trapezoidal_labels![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// assessment::domain::Qualitative::new(labels);
     /// ```
@@ -90,22 +73,12 @@ impl Qualitative {
     /// If there are labels with duplicate names
     ///
     /// ```should_panic
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// use assessment::trapezoidal_labels;
     ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
+    /// let mut labels = trapezoidal_labels![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "a" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// assessment::domain::Qualitative::new(labels);
     /// ```
@@ -120,31 +93,16 @@ impl Qualitative {
     /// # Examples
     ///
     /// ```
-    /// let labels = Vec::new();
-    /// let domain = assessment::domain::Qualitative::new(labels);
+    /// let domain = assessment::domain::Qualitative::new(Vec::new());
     ///
     /// assert_eq!(domain.cardinality(), 0);
     /// ```
     ///
     /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// let domain = assessment::domain::Qualitative::new(labels);
+    /// let domain = assessment::qualitative_domain![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// assert_eq!(domain.cardinality(), 2);
     /// ```
@@ -161,25 +119,10 @@ impl Qualitative {
     /// # Examples
     ///
     /// ```
-    ///
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// let domain = assessment::domain::Qualitative::new(labels);
+    /// let domain = assessment::qualitative_domain![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// assert_eq!(domain.contains_label("a"), true);
     /// assert_eq!(domain.contains_label("b"), true);
@@ -198,33 +141,11 @@ impl Qualitative {
     ///
     /// # Examples
     ///
-    ///
-    /// Check if domains contains a given label name
-    ///
-    /// # Params
-    /// - `name`: Label name.
-    ///
-    /// # Examples
-    ///
     /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// let domain = assessment::domain::Qualitative::new(labels);
+    /// let domain = assessment::qualitative_domain![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// assert_eq!(domain.label_position("a"), Some(0));
     /// assert_eq!(domain.label_position("b"), Some(1));
@@ -246,58 +167,26 @@ impl Qualitative {
     /// # Examples
     ///
     /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// use assessment::trapezoidal_labels;
     ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
+    /// let mut labels = trapezoidal_labels![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
     ///
-    /// assert_eq!(*domain.get_label_by_position(0), labels[0]);
-    /// assert_eq!(*domain.get_label_by_position(1), labels[1]);
+    /// assert_eq!(domain.get_label_by_position(0), Some(&labels[0]));
+    /// assert_eq!(domain.get_label_by_position(1), Some(&labels[1]));
+    /// assert_eq!(domain.get_label_by_position(2), None);
     /// ```
     ///
-    /// # Panics
-    ///
-    /// If `position >= self.labels.len()`
-    ///
-    /// ```should_panic
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// let domain = assessment::domain::Qualitative::new(labels);
-    ///
-    /// domain.get_label_by_position(2);
-    /// ```
-    ///
-    pub fn get_label_by_position(&self, position: usize) -> &Label {
-        &self.labels[position]
+    pub fn get_label_by_position(&self, position: usize) -> Option<&Label> {
+        if position < self.labels.len() {
+            Some(&self.labels[position])
+        } else {
+            None
+        }
     }
 
     /// Get a label given its name
@@ -308,61 +197,86 @@ impl Qualitative {
     /// # Examples
     ///
     /// ```
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// use assessment::trapezoidal_labels;
     ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
+    /// let mut labels = trapezoidal_labels![
+    ///     "a" => &vec![0.0, 0.0, 1.0],
+    ///     "b" => &vec![0.0, 1.0, 1.0]
+    /// ];
     ///
     /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
     ///
-    /// assert_eq!(*domain.get_label_by_name("a"), labels[0]);
-    /// assert_eq!(*domain.get_label_by_name("b"), labels[1]);
+    /// assert_eq!(domain.get_label_by_name("a"), Some(&labels[0]));
+    /// assert_eq!(domain.get_label_by_name("b"), Some(&labels[1]));
+    /// assert_eq!(domain.get_label_by_name("c"), None);
+    /// assert_eq!(domain.get_label_by_name(" a"), None);
+    /// assert_eq!(domain.get_label_by_name("A"), None);
     /// ```
     ///
-    /// # Panics
-    ///
-    /// If there is no label with the given `name`
-    ///
-    /// ```should_panic
-    /// use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    ///
-    /// let mut labels = Vec::new();
-    ///
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("a"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 0.0, 1.0]))
-    ///     )
-    /// );
-    /// labels.push(
-    ///     Label::new(
-    ///         String::from("b"),
-    ///         SupportedMembership::Trapezoidal(Trapezoidal::new(&vec![0.0, 1.0, 1.0]))
-    ///     )
-    /// );
-    ///
-    /// let domain = assessment::domain::Qualitative::new(labels);
-    ///
-    /// domain.get_label_by_name(" a");
-    /// ```
-    ///
-    pub fn get_label_by_name(&self, name: &str) -> &Label {
+    pub fn get_label_by_name(&self, name: &str) -> Option<&Label> {
         if let Some(position) = self.label_position(name) {
-            &self.labels[position]
+            Some(&self.labels[position])
         } else {
-            panic!("There is no label with the name {}", name);
+            None
         }
     }
+}
+
+
+// // //
+// Macros
+//
+
+/// Qualitative domain
+///
+/// Generates a qualitative domain. Note it is a wrapper of trapezoidal_labels macro
+///
+/// # Examples
+///
+/// ```
+/// let domain = assessment::qualitative_domain![
+///     "a" => &vec![0.0, 0.0, 1.0],
+///     "b" => &vec![0.0, 1.0, 1.0]
+/// ];
+///
+/// assert_eq!(format!("{}", domain), "[a => (0.00, 0.00, 1.00), b => (0.00, 1.00, 1.00)]");
+/// ```
+///
+/// # Panics
+///
+/// If any label name is invalid (see Label::new(&self, name))
+///
+/// ```should_panic
+/// assessment::qualitative_domain![
+///     " a" => &vec![0.0, 0.0, 1.0]
+/// ];
+/// ```
+///
+/// If any label limits are invalid (see Trapezoidal::new(&self, &limits))
+///
+/// ```should_panic
+/// assessment::qualitative_domain![
+///     "a" => &vec![0.0, 0.0, 1.0, 1.0, 1.0]
+/// ];
+/// ```
+///
+/// If labels are invalid (see Qualitative::new(&self, labels))
+///
+/// ```should_panic
+/// assessment::qualitative_domain![
+///     "a" => &vec![0.0, 0.0, 1.0],
+///     "a" => &vec![0.0, 1.0, 1.0]
+/// ];
+/// ```
+#[macro_export]
+macro_rules! qualitative_domain {
+    ( $( $name:expr => $membership:expr ),* ) => {
+        {
+            assessment::domain::Qualitative::new(
+                assessment::trapezoidal_labels![
+                    $( $name => $membership ),*
+                ]
+            )
+        }
+    };
 }

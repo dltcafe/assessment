@@ -149,3 +149,67 @@ impl Label {
         &self.membership
     }
 }
+
+// // //
+// Macros
+//
+
+/// Trapezoidal labels
+///
+/// Generates an array of trapezoidal labels
+///
+/// # Examples
+///
+/// ```
+/// use assessment::trapezoidal_labels;
+///
+/// let mut labels = trapezoidal_labels![
+///     "a" => &vec![0.0, 0.0, 1.0],
+///     "b" => &vec![0.0, 1.0, 1.0]
+/// ];
+///
+/// assert_eq!(labels.len(), 2);
+/// assert_eq!(format!("{}", labels[0]), "a => (0.00, 0.00, 1.00)");
+/// assert_eq!(format!("{}", labels[1]), "b => (0.00, 1.00, 1.00)");
+/// ```
+///
+/// # Panics
+///
+/// If any label name is invalid (see Label::new(&self, name))
+///
+/// ```should_panic
+/// use assessment::trapezoidal_labels;
+///
+/// let mut labels = trapezoidal_labels![
+///     " a" => &vec![0.0, 0.0, 1.0]
+/// ];
+/// ```
+///
+/// If any label limits are invalid (see Trapezoidal::new(&self, &limits))
+///
+/// ```should_panic
+/// use assessment::trapezoidal_labels;
+///
+/// let mut labels = trapezoidal_labels![
+///     "a" => &vec![0.0, 0.0, 1.0, 1.0, 1.0]
+/// ];
+/// ```
+#[macro_export]
+macro_rules! trapezoidal_labels {
+    ( $( $name:expr => $membership:expr ),* ) => {
+        {
+            let mut labels = Vec::new();
+            $(
+                labels.push(
+                    assessment::fuzzy::label::Label::new(
+                        $name.to_string(),
+                        assessment::fuzzy::label::SupportedMembership::Trapezoidal(
+                            assessment::fuzzy::membership::Trapezoidal::new($membership)
+                        )
+                    )
+                );
+            )*
+            labels
+        }
+    };
+}
