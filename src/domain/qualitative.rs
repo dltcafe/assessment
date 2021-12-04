@@ -17,7 +17,15 @@ impl Domain for Qualitative {}
 
 impl Display for Qualitative {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[{}]", self.labels.iter().map(|v| format!("{}", v)).collect::<Vec<String>>().join(", "))
+        write!(
+            f,
+            "[{}]",
+            self.labels
+                .iter()
+                .map(|v| format!("{}", v))
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
     }
 }
 
@@ -124,11 +132,9 @@ impl Qualitative {
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// assert_eq!(domain.contains_label("a"), true);
-    /// assert_eq!(domain.contains_label("b"), true);
-    /// assert_eq!(domain.contains_label("c"), false);
-    /// assert_eq!(domain.contains_label(" a"), false);
-    /// assert_eq!(domain.contains_label("A"), false);
+    /// for (v, e) in [("a", true), ("b", true), ("c", false)] {
+    ///     assert_eq!(domain.contains_label(v), e);
+    /// }
     /// ```
     pub fn contains_label(&self, name: &str) -> bool {
         Qualitative::_get_labels_names(&self.labels).contains(&name)
@@ -147,11 +153,9 @@ impl Qualitative {
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// assert_eq!(domain.label_position("a"), Some(0));
-    /// assert_eq!(domain.label_position("b"), Some(1));
-    /// assert_eq!(domain.label_position("c"), None);
-    /// assert_eq!(domain.label_position(" a"), None);
-    /// assert_eq!(domain.label_position("A"), None);
+    /// for (v, e) in [("a", Some(0)), ("b", Some(1)), ("c", None)] {
+    ///     assert_eq!(domain.label_position(v), e);
+    /// }
     /// ```
     pub fn label_position(&self, name: &str) -> Option<usize> {
         Qualitative::_get_labels_names(&self.labels)
@@ -176,9 +180,9 @@ impl Qualitative {
     ///
     /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
     ///
-    /// assert_eq!(domain.get_label_by_position(0), Some(&labels[0]));
-    /// assert_eq!(domain.get_label_by_position(1), Some(&labels[1]));
-    /// assert_eq!(domain.get_label_by_position(2), None);
+    /// for (v, e) in [(0, Some(&labels[0])), (1, Some(&labels[1])), (2, None)] {
+    ///     assert_eq!(domain.get_label_by_position(v), e);
+    /// }
     /// ```
     ///
     pub fn get_label_by_position(&self, position: usize) -> Option<&Label> {
@@ -206,11 +210,9 @@ impl Qualitative {
     ///
     /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
     ///
-    /// assert_eq!(domain.get_label_by_name("a"), Some(&labels[0]));
-    /// assert_eq!(domain.get_label_by_name("b"), Some(&labels[1]));
-    /// assert_eq!(domain.get_label_by_name("c"), None);
-    /// assert_eq!(domain.get_label_by_name(" a"), None);
-    /// assert_eq!(domain.get_label_by_name("A"), None);
+    /// for (v, e) in [("a", Some(&labels[0])), ("b", Some(&labels[1])), ("c", None)] {
+    ///     assert_eq!(domain.get_label_by_name(v), e);
+    /// }
     /// ```
     ///
     pub fn get_label_by_name(&self, name: &str) -> Option<&Label> {
@@ -221,7 +223,6 @@ impl Qualitative {
         }
     }
 }
-
 
 // // //
 // Macros

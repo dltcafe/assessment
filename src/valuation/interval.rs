@@ -357,7 +357,7 @@ impl<'domain> Interval<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
     /// assessment::valuation::Interval::new_real(&domain, 4.2, 4.7);
     /// ```
@@ -395,7 +395,7 @@ impl<'domain> Interval<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use assessment::valuation::interval::*;
     ///
     /// let min = 4;
@@ -412,8 +412,7 @@ impl<'domain> Interval<'domain> {
     /// }
     /// ```
     ///
-    /// ```rust
-    ///
+    /// ```
     /// use assessment::valuation::interval::*;
     ///
     /// let min = 4.3;
@@ -437,32 +436,22 @@ impl<'domain> Interval<'domain> {
     ///
     /// If the internal value is a Value::Real, it may lose accuracy.
     ///
-    /// ```rust
-    /// let min = 4;
-    /// let max = 5;
-    ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// let valuation = assessment::valuation::Interval::new_integer(&domain, min, max);
-    ///
-    /// let (a, b) = valuation.value_integer();
-    /// assert_eq!(a, min);
-    /// assert_eq!(b, max);
     /// ```
+    /// use assessment::valuation::Interval;
+    /// use assessment::domain::Quantitative;
     ///
-    /// ```rust
     /// let min = 4.3;
     /// let max = 5.7;
-    /// let min_aux  = min as i32;
-    /// let max_aux  = max as i32;
     ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// let valuation = assessment::valuation::Interval::new_real(&domain, min, max);
+    /// let domain = Quantitative::new(1.0, 5.7);
     ///
-    /// let (a, b) = valuation.value_integer();
-    /// assert_ne!(a as f64, min);
-    /// assert_ne!(a as f64, max);
-    /// assert_eq!(a, min_aux);
-    /// assert_eq!(b, max_aux);
+    /// for (v, e) in [
+    ///     (Interval::new_integer(&domain, min as i32, max as i32).value_integer(), (min as i32, max as i32)),
+    ///     (Interval::new_real(&domain, min, max).value_integer(), (min as i32, max as i32)),
+    /// ] {
+    ///     assert_eq!(v.0, e.0);
+    ///     assert_eq!(v.1, e.1);
+    /// }
     /// ```
     pub fn value_integer(&self) -> (i32, i32) {
         match self.value {
@@ -473,34 +462,22 @@ impl<'domain> Interval<'domain> {
 
     /// Returns value as real.
     ///
-    /// ```rust
-    /// use assessment::valuation::interval::*;
-    ///
-    /// let min = 4;
-    /// let max = 5;
-    /// let value = Value::new_integer(min, max);
-    ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// let valuation = Interval::new(&domain, value);
-    ///
-    /// let (a, b) = valuation.value_real();
-    /// assert_eq!(a, min as f64);
-    /// assert_eq!(b, max as f64);
     /// ```
-    ///
-    /// ```rust
-    /// use assessment::valuation::interval::*;
+    /// use assessment::valuation::Interval;
+    /// use assessment::domain::Quantitative;
     ///
     /// let min = 4.3;
-    /// let max = 4.7;
-    /// let value = Value::new_real(min, max);
+    /// let max = 5.7;
     ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// let valuation = Interval::new(&domain, value);
+    /// let domain = Quantitative::new(1.0, 5.7);
     ///
-    /// let (a, b) = valuation.value_real();
-    /// assert_eq!(a, min);
-    /// assert_eq!(b, max);
+    /// for (v, e) in [
+    ///     (Interval::new_integer(&domain, min as i32, max as i32).value_real(), (min as i32 as f64, max as i32 as f64)),
+    ///     (Interval::new_real(&domain, min, max).value_real(), (min, max)),
+    /// ] {
+    ///     assert_eq!(v.0, e.0);
+    ///     assert_eq!(v.1, e.1);
+    /// }
     /// ```
     pub fn value_real(&self) -> (f64, f64) {
         match self.value {
@@ -513,7 +490,7 @@ impl<'domain> Interval<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use assessment::valuation::interval::*;
     ///
     /// let value = Value::new_integer(4, 5);

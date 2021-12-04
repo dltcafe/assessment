@@ -20,7 +20,7 @@ impl<'domain> Numeric<'domain> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// let inf = 1.0;
     /// let sup = 5.7;
     ///

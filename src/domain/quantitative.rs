@@ -53,7 +53,7 @@ impl Quantitative {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// let inf = -1.3;
     /// let domain = assessment::domain::Quantitative::new(inf, 0.0);
     /// assert_eq!(domain.inf(), inf);
@@ -66,7 +66,7 @@ impl Quantitative {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// let sup = 3.4;
     /// let domain = assessment::domain::Quantitative::new(0.0, sup);
     /// assert_eq!(domain.sup(), sup);
@@ -82,22 +82,22 @@ impl Quantitative {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// let inf = -1.3;
-    /// let sup = 3.4;
-    /// let valid_value_a = 0.7;
-    /// let valid_value_b = -1.2;
-    /// let invalid_value_a = inf - 0.1;
-    /// let invalid_value_b = sup + 0.1;
+    /// let sup = inf + 1.0;
     ///
     /// let domain = assessment::domain::Quantitative::new(inf, sup);
     ///
-    /// assert_eq!(domain.valid_assessment(inf), true);
-    /// assert_eq!(domain.valid_assessment(sup), true);
-    /// assert_eq!(domain.valid_assessment(valid_value_a), true);
-    /// assert_eq!(domain.valid_assessment(valid_value_b), true);
-    /// assert_eq!(domain.valid_assessment(invalid_value_a), false);
-    /// assert_eq!(domain.valid_assessment(invalid_value_b), false);
+    /// for (v, e) in [
+    ///     (inf, true),
+    ///     (sup, true),
+    ///     (inf + 0.1, true),
+    ///     (sup - 0.1, true),
+    ///     (inf - 0.1, false),
+    ///     (sup + 0.1, false),
+    /// ] {
+    ///     assert_eq!(domain.valid_assessment(v), e);
+    /// }
     /// ```
     pub fn valid_assessment(&self, value: f64) -> bool {
         value >= self.inf && value <= self.sup
