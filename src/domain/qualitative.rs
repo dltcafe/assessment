@@ -1,17 +1,15 @@
-use super::Domain;
-use crate::fuzzy::label::Label;
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-/// Qualitative domains
+use crate::fuzzy::label::Label;
+
+use super::Domain;
+
+/// Qualitative domains.
 #[derive(Debug)]
 pub struct Qualitative {
     labels: Vec<Label>,
 }
-
-// // //
-// Traits implementations
-//
 
 impl Domain for Qualitative {}
 
@@ -29,12 +27,8 @@ impl Display for Qualitative {
     }
 }
 
-// // //
-// Implementation
-//
-
 impl Qualitative {
-    /// Force that there are no duplicate labels names
+    /// Force that there are no duplicate labels names.
     fn _force_unique_labels_names(labels: &Vec<&str>) {
         let mut set = HashSet::new();
         for label in labels {
@@ -45,7 +39,7 @@ impl Qualitative {
         }
     }
 
-    /// Returns labels names
+    /// Returns labels names.
     fn _get_labels_names(labels: &Vec<Label>) -> Vec<&str> {
         labels
             .iter()
@@ -53,42 +47,40 @@ impl Qualitative {
             .collect::<Vec<&str>>()
     }
 
-    /// Qualitative domain constructor
+    /// Qualitative domain constructor.
     ///
-    /// # Params
-    /// - `labels`: Domain labels
+    /// # Arguments
+    /// * `labels`: Domain labels.
     ///
     /// # Examples
     ///
     /// ```
-    /// let labels = Vec::new();
-    /// assessment::domain::Qualitative::new(labels);
-    /// ```
+    /// # use assessment::domain::Qualitative;
+    /// # use assessment::trapezoidal_labels;
+    /// // Empty
+    /// Qualitative::new(Vec::new());
     ///
-    /// ```
-    /// use assessment::trapezoidal_labels;
-    ///
-    /// let mut labels = trapezoidal_labels![
+    /// // Or with a vector of (valid) labels
+    /// let labels = trapezoidal_labels![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
-    ///
-    /// assessment::domain::Qualitative::new(labels);
+    /// Qualitative::new(labels);
     /// ```
     ///
     /// # Panics
     ///
-    /// If there are labels with duplicate names
+    /// If there are labels with duplicate names.
     ///
     /// ```should_panic
-    /// use assessment::trapezoidal_labels;
-    ///
-    /// let mut labels = trapezoidal_labels![
+    /// # use assessment::domain::Qualitative;
+    /// # use assessment::trapezoidal_labels;
+    /// let labels = trapezoidal_labels![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "a" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// assessment::domain::Qualitative::new(labels);
+    /// Qualitative::new(labels);
     /// ```
     ///
     pub fn new(labels: Vec<Label>) -> Self {
@@ -96,22 +88,22 @@ impl Qualitative {
         Qualitative { labels }
     }
 
-    /// Returns the number of labels
+    /// Returns the number of labels.
     ///
     /// # Examples
     ///
     /// ```
-    /// let domain = assessment::domain::Qualitative::new(Vec::new());
-    ///
+    /// # use assessment::qualitative_domain;
+    /// let domain = qualitative_domain![];
     /// assert_eq!(domain.cardinality(), 0);
     /// ```
     ///
     /// ```
-    /// let domain = assessment::qualitative_domain![
+    /// # use assessment::qualitative_domain;
+    /// let domain = qualitative_domain![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
-    ///
     /// assert_eq!(domain.cardinality(), 2);
     /// ```
     ///
@@ -119,20 +111,25 @@ impl Qualitative {
         self.labels.len()
     }
 
-    /// Check if domains contains a given label name
+    /// Check if domains contains a given label name.
     ///
-    /// # Params
-    /// - `name`: Label name.
+    /// # Arguments
+    /// * `name`: Label name.
     ///
     /// # Examples
     ///
     /// ```
-    /// let domain = assessment::qualitative_domain![
+    /// # use assessment::qualitative_domain;
+    /// let domain = qualitative_domain![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// for (v, e) in [("a", true), ("b", true), ("c", false)] {
+    /// for (v, e) in [
+    ///     ("a", true),
+    ///     ("b", true),
+    ///     ("c", false)
+    /// ] {
     ///     assert_eq!(domain.contains_label(v), e);
     /// }
     /// ```
@@ -140,20 +137,25 @@ impl Qualitative {
         Qualitative::_get_labels_names(&self.labels).contains(&name)
     }
 
-    /// Returns label position if there is a label which this name
+    /// Returns label position if there is a label which this name.
     ///
-    /// # Params
-    /// - `name`: Label name.
+    /// # Arguments
+    /// * `name`: Label name.
     ///
     /// # Examples
     ///
     /// ```
-    /// let domain = assessment::qualitative_domain![
+    /// # use assessment::qualitative_domain;
+    /// let domain = qualitative_domain![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// for (v, e) in [("a", Some(0)), ("b", Some(1)), ("c", None)] {
+    /// for (v, e) in [
+    ///     ("a", Some(0)),
+    ///     ("b", Some(1)),
+    ///     ("c", None)
+    /// ] {
     ///     assert_eq!(domain.label_position(v), e);
     /// }
     /// ```
@@ -163,28 +165,31 @@ impl Qualitative {
             .position(|&v| v.eq(name))
     }
 
-    /// Get a label given its position
+    /// Get a label given its position.
     ///
-    /// # Params
-    /// - `position`: Label position
+    /// # Arguments
+    /// * `position`: Label position.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::trapezoidal_labels;
-    ///
-    /// let mut labels = trapezoidal_labels![
+    /// # use assessment::trapezoidal_labels;
+    /// # use assessment::domain::Qualitative;
+    /// let labels = trapezoidal_labels![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
+    /// let domain = Qualitative::new(labels.to_vec());
     ///
-    /// for (v, e) in [(0, Some(&labels[0])), (1, Some(&labels[1])), (2, None)] {
+    /// for (v, e) in [
+    ///     (0, Some(&labels[0])),
+    ///     (1, Some(&labels[1])),
+    ///     (2, None)
+    /// ] {
     ///     assert_eq!(domain.get_label_by_position(v), e);
     /// }
     /// ```
-    ///
     pub fn get_label_by_position(&self, position: usize) -> Option<&Label> {
         if position < self.labels.len() {
             Some(&self.labels[position])
@@ -193,24 +198,28 @@ impl Qualitative {
         }
     }
 
-    /// Get a label given its name
+    /// Get a label given its name.
     ///
-    /// # Params
-    /// - `name`: Label name
+    /// # Arguments
+    /// * `name`: Label name.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::trapezoidal_labels;
-    ///
-    /// let mut labels = trapezoidal_labels![
+    /// # use assessment::trapezoidal_labels;
+    /// # use assessment::domain::Qualitative;
+    /// let labels = trapezoidal_labels![
     ///     "a" => &vec![0.0, 0.0, 1.0],
     ///     "b" => &vec![0.0, 1.0, 1.0]
     /// ];
     ///
-    /// let domain = assessment::domain::Qualitative::new(labels.to_vec());
+    /// let domain = Qualitative::new(labels.to_vec());
     ///
-    /// for (v, e) in [("a", Some(&labels[0])), ("b", Some(&labels[1])), ("c", None)] {
+    /// for (v, e) in [
+    ///     ("a", Some(&labels[0])),
+    ///     ("b", Some(&labels[1])),
+    ///     ("c", None)
+    /// ] {
     ///     assert_eq!(domain.get_label_by_name(v), e);
     /// }
     /// ```
@@ -224,47 +233,52 @@ impl Qualitative {
     }
 }
 
-// // //
-// Macros
-//
-
-/// Qualitative domain
+#[allow(unused_imports)]
+use crate::fuzzy::membership::Trapezoidal;
+/// Qualitative domain.
 ///
-/// Generates a qualitative domain. Note it is a wrapper of trapezoidal_labels macro
+/// Generates a qualitative domain. Note it is a wrapper of trapezoidal_labels macro.
 ///
 /// # Examples
 ///
 /// ```
-/// let domain = assessment::qualitative_domain![
+/// # use assessment::qualitative_domain;
+/// let domain = qualitative_domain![
 ///     "a" => &vec![0.0, 0.0, 1.0],
 ///     "b" => &vec![0.0, 1.0, 1.0]
 /// ];
 ///
-/// assert_eq!(format!("{}", domain), "[a => (0.00, 0.00, 1.00), b => (0.00, 1.00, 1.00)]");
+/// assert_eq!(
+///     format!("{}", domain),
+///     "[a => (0.00, 0.00, 1.00), b => (0.00, 1.00, 1.00)]"
+/// );
 /// ```
 ///
 /// # Panics
 ///
-/// If any label name is invalid (see Label::new(&self, name))
+/// If any label name is invalid ([Label::new]).
 ///
 /// ```should_panic
-/// assessment::qualitative_domain![
+/// # use assessment::qualitative_domain;
+/// qualitative_domain![
 ///     " a" => &vec![0.0, 0.0, 1.0]
 /// ];
 /// ```
 ///
-/// If any label limits are invalid (see Trapezoidal::new(&self, &limits))
+/// If any label limits are invalid (see [Trapezoidal::new]).
 ///
 /// ```should_panic
-/// assessment::qualitative_domain![
+/// # use assessment::qualitative_domain;
+/// qualitative_domain![
 ///     "a" => &vec![0.0, 0.0, 1.0, 1.0, 1.0]
 /// ];
 /// ```
 ///
-/// If labels are invalid (see Qualitative::new(&self, labels))
+/// If labels are invalid (see [Qualitative::new]).
 ///
 /// ```should_panic
-/// assessment::qualitative_domain![
+/// # use assessment::qualitative_domain;
+/// qualitative_domain![
 ///     "a" => &vec![0.0, 0.0, 1.0],
 ///     "a" => &vec![0.0, 1.0, 1.0]
 /// ];

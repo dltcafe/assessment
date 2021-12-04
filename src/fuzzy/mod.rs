@@ -1,7 +1,7 @@
-//! Fuzzy logic utilities for linguistic assessments
+//! Fuzzy logic utilities for linguistic assessments.
 
-/// Membership functions
+/// Membership functions.
 pub mod membership;
 
-/// Fussy label
+/// Fussy label.
 pub mod label;

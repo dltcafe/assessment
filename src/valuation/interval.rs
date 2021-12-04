@@ -1,19 +1,16 @@
-use crate::domain::Quantitative;
-use crate::Valuation;
 use std::fmt::Display;
 
-/// Interval valuations
+use crate::domain::Quantitative;
+use crate::Valuation;
+
+/// Interval valuations.
 #[derive(Debug)]
 pub struct Interval<'domain> {
     domain: &'domain Quantitative,
     value: Value,
 }
 
-// // //
-// Enums
-//
-
-/// Interval valuation options
+/// Interval valuation options.
 #[derive(Debug, PartialEq)]
 pub enum Value {
     Integer { min: i32, max: i32 },
@@ -21,23 +18,23 @@ pub enum Value {
 }
 
 impl Value {
-    /// Force `min` <= `max`
+    /// Force `min <= max`.
     fn _force_valid_range<T: Display + PartialOrd>(min: T, max: T) {
         if min > max {
             panic!("Min {} > Max {}", min, max);
         }
     }
 
-    /// Creates a new Value::Integer
+    /// Creates a new Value::Integer.
     ///
-    /// # Params
-    /// - `min`: Min value.
-    /// - `max`: Max value.
+    /// # Arguments
+    /// * `min`: Min value.
+    /// * `max`: Max value.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
+    /// # use assessment::valuation::interval::*;
     /// let min = 4;
     /// let max = 5;
     ///
@@ -51,10 +48,11 @@ impl Value {
     ///
     /// # Panics
     ///
-    /// If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
-    /// assessment::valuation::interval::Value::new_integer(5, 4);
+    /// # use assessment::valuation::interval::*;
+    /// Value::new_integer(5, 4);
     /// ```
     ///
     pub fn new_integer(min: i32, max: i32) -> Self {
@@ -62,16 +60,16 @@ impl Value {
         Self::Integer { min, max }
     }
 
-    /// Creates a new Value::Real
+    /// Creates a new Value::Real.
     ///
-    /// # Params
-    /// - `min`: Min value.
-    /// - `max`: Max value.
+    /// # Arguments
+    /// * `min`: Min value.
+    /// * `max`: Max value.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
+    /// # use assessment::valuation::interval::*;
     /// let min = 4.5;
     /// let max = 5.7;
     ///
@@ -85,10 +83,11 @@ impl Value {
     ///
     /// # Panics
     ///
-    /// If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
-    /// assessment::valuation::interval::Value::new_real(5.7, 4.5);
+    /// # use assessment::valuation::interval::*;
+    /// Value::new_real(5.7, 4.5);
     /// ```
     ///
     pub fn new_real(min: f64, max: f64) -> Self {
@@ -96,23 +95,25 @@ impl Value {
         Self::Real { min, max }
     }
 
-    /// Forces a valid range in a valuation
+    /// Forces a valid range in a valuation.
     ///
     /// # Examples
     ///
     /// ## Integer
     ///
     /// ```
+    /// # use assessment::valuation::interval::*;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 4, max: 5 };
+    /// let value = Value::Integer { min: 4, max: 5 };
     /// value.force_valid_range();
     /// ```
     ///
     /// ## Real
     ///
     /// ```
+    /// # use assessment::valuation::interval::*;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 4.2, max: 5.3 };
+    /// let value = Value::Real { min: 4.2, max: 5.3 };
     /// value.force_valid_range();
     /// ```
     ///
@@ -120,21 +121,23 @@ impl Value {
     ///
     /// ## Integer
     ///
-    /// - If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 5, max: 4 };
+    /// let value = Value::Integer { min: 5, max: 4 };
     /// value.force_valid_range();
     /// ```
     ///
     /// ## Real
     ///
-    /// - If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 5.3, max: 4.2 };
+    /// let value = Value::Real { min: 5.3, max: 4.2 };
     /// value.force_valid_range();
     /// ```
     ///
@@ -145,93 +148,101 @@ impl Value {
         }
     }
 
-    /// Forces a valid value in a domain
+    /// Forces a valid value in a domain.
     ///
     /// # Examples
     ///
     /// ## Integer
     ///
     /// ```
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 4, max: 5 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Integer { min: 4, max: 5 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
     /// ## Real
     ///
     /// ```
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 4.2, max: 5.3 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Real { min: 4.2, max: 5.3 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
-    /// ```
-    ///
-    /// ## Real
-    ///
-    /// ```
-    /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 4.2, max: 5.3 };
-    /// value.force_valid_range();
     /// ```
     ///
     /// # Panics
     ///
     /// ## Integer
     ///
-    /// - If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 5, max: 4 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Integer { min: 5, max: 4 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
-    /// - If `min` > `domain` lower limit
+    /// If `min < domain inferior limit`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 0, max: 4 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Integer { min: 0, max: 4 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
-    /// - If `max` > `domain` upper limit
+    /// If `max > domain superior limit`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Integer { min: 2, max: 6 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Integer { min: 2, max: 6 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
     /// ## Real
     ///
-    /// - If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 3.4, max: 2.3 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Real { min: 3.4, max: 2.3 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
-    /// - If `min` > `domain` lower limit
+    /// If `min < domain inferior limit`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 0.2, max: 4.3 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Real { min: 0.2, max: 4.3 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     ///
-    /// - If `max` > `domain` upper limit
+    /// If `max > domain superior limit`.
     ///
     /// ```should_panic
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// // This create an element without checks
-    /// let value = assessment::valuation::interval::Value::Real { min: 2.0, max: 6.8 };
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let value = Value::Real { min: 2.0, max: 6.8 };
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// value.force_valid_in_domain(&domain);
     /// ```
     pub fn force_valid_in_domain(&self, domain: &Quantitative) {
@@ -252,52 +263,48 @@ impl Value {
     }
 }
 
-// // //
-// Traits implementations
-//
-
 impl<'domain> Valuation for Interval<'domain> {}
 
-// // //
-// Implementation
-//
-
 impl<'domain> Interval<'domain> {
-    /// Creates a new valuation
+    /// Creates a new valuation.
     ///
-    /// # Params
-    /// - `domain`: A quantitative domain reference.
-    /// - `value`: An assessment value valid in this `domain`.
+    /// # Arguments
+    /// * `domain`: A quantitative domain reference.
+    /// * `value`: An assessment value valid in this `domain`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new(&domain, Value::new_integer(4, 5));
     /// ```
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new(&domain, Value::new_real(4.1, 5.2));
     /// ```
     ///
     /// # Panics
     ///
-    /// If `value.min` < `domain` lower limit.
+    /// If `value.min < domain inferior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new(&domain, Value::new_real(0.0, 4.7));
     /// ```
     ///
-    /// If `value.max` > `domain` upper limit.
+    /// If `value.max > domain superior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new(&domain, Value::new_real(1.5, 6.0));
     /// ```
     pub fn new(domain: &'domain Quantitative, value: Value) -> Self {
@@ -305,103 +312,113 @@ impl<'domain> Interval<'domain> {
         Self { domain, value }
     }
 
-    /// Creates a new integer valuation
+    /// Creates a new integer valuation.
     ///
-    /// # Params
-    /// - `domain`: A quantitative domain reference.
-    /// - `min`: Minimum value of the interval value.
-    /// - `max`: Maximum value of the interval value.
+    /// # Arguments
+    /// * `domain`: A quantitative domain reference.
+    /// * `min`: Minimum value of the interval value.
+    /// * `max`: Maximum value of the interval value.
     ///
     /// # Examples
     ///
     /// ```
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// assessment::valuation::Interval::new_integer(&domain, 4, 5);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
+    /// Interval::new_integer(&domain, 4, 5);
     /// ```
     ///
     /// # Panics
     ///
-    /// If `min` < `domain` lower limit.
+    /// If `min < domain inferior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_integer(&domain, 0, 4);
     /// ```
     ///
-    /// If `max` > `domain` upper limit.
+    /// If `max > domain superior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_integer(&domain, 2, 6);
     /// ```
     ///
-    /// If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_integer(&domain, 4, 2);
     /// ```
     pub fn new_integer(domain: &'domain Quantitative, min: i32, max: i32) -> Self {
         Interval::new(&domain, Value::new_integer(min, max))
     }
 
-    /// Creates a new real valuation
+    /// Creates a new real valuation.
     ///
-    /// # Params
-    /// - `domain`: A quantitative domain reference.
-    /// - `min`: Minimum value of the interval value.
-    /// - `max`: Maximum value of the interval value.
+    /// # Arguments
+    /// * `domain`: A quantitative domain reference.
+    /// * `min`: Minimum value of the interval value.
+    /// * `max`: Maximum value of the interval value.
     ///
     /// # Examples
     ///
     /// ```
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
-    /// assessment::valuation::Interval::new_real(&domain, 4.2, 4.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
+    /// Interval::new_real(&domain, 4.2, 4.7);
     /// ```
     ///
     /// # Panics
     ///
-    /// If `min` < `domain` lower limit.
+    /// If `min < domain inferior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_real(&domain, 0.5, 4.3);
     /// ```
     ///
-    /// If `max` > `domain` upper limit.
+    /// If `max > domain superior limit`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_real(&domain, 2.3, 6.2);
     /// ```
     ///
-    /// If `min` > `max`
+    /// If `min > max`.
     ///
     /// ```should_panic
-    /// use assessment::valuation::interval::*;
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// Interval::new_real(&domain, 4.2, 2.3);
     /// ```
     pub fn new_real(domain: &'domain Quantitative, min: f64, max: f64) -> Self {
         Interval::new(&domain, Value::new_real(min, max))
     }
 
-    /// Returns valuation value
+    /// Returns valuation value.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
-    ///
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// let min = 4;
     /// let max = 5;
     ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// let valuation = Interval::new_integer(&domain, min, max);
     ///
     /// if let Value::Integer { min: a, max: b } = *valuation.value() {
@@ -413,12 +430,12 @@ impl<'domain> Interval<'domain> {
     /// ```
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
-    ///
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// let min = 4.3;
     /// let max = 5.4;
     ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// let valuation = Interval::new_real(&domain, min, max);
     ///
     /// if let Value::Real { min: a, max: b } = *valuation.value() {
@@ -437,9 +454,8 @@ impl<'domain> Interval<'domain> {
     /// If the internal value is a Value::Real, it may lose accuracy.
     ///
     /// ```
-    /// use assessment::valuation::Interval;
-    /// use assessment::domain::Quantitative;
-    ///
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// let min = 4.3;
     /// let max = 5.7;
     ///
@@ -463,12 +479,10 @@ impl<'domain> Interval<'domain> {
     /// Returns value as real.
     ///
     /// ```
-    /// use assessment::valuation::Interval;
-    /// use assessment::domain::Quantitative;
-    ///
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// let min = 4.3;
     /// let max = 5.7;
-    ///
     /// let domain = Quantitative::new(1.0, 5.7);
     ///
     /// for (v, e) in [
@@ -486,18 +500,16 @@ impl<'domain> Interval<'domain> {
         }
     }
 
-    /// Returns valuation domain
+    /// Returns valuation domain.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::valuation::interval::*;
-    ///
+    /// # use assessment::valuation::interval::*;
+    /// # use assessment::domain::Quantitative;
     /// let value = Value::new_integer(4, 5);
-    ///
-    /// let domain = assessment::domain::Quantitative::new(1.0, 5.7);
+    /// let domain = Quantitative::new(1.0, 5.7);
     /// let valuation = Interval::new(&domain, value);
-    ///
     /// assert_eq!(*valuation.domain(), domain);
     /// ```
     pub fn domain(&self) -> &'domain Quantitative {

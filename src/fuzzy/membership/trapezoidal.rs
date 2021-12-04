@@ -1,13 +1,14 @@
-use super::Membership;
 use std::fmt::{Display, Formatter};
 
-/// Trapezoidal Membership Function struct
+use super::Membership;
+
+/// Trapezoidal Membership Function struct.
 ///
-/// This function is defined by four points going from left to right (a, b, c, d).
+/// This function is defined by four points going from left to right `(a, b, c, d)`.
 ///
-/// [a-d] is the base of the trapezoid and [b-c] is the center.
+/// `[a-d]` is the base of the trapezoid and `[b-c]` is the center.
 ///
-/// If b=c the function is called **Triangular**.
+/// If `b=c` the function is called **Triangular**.
 #[derive(Debug, PartialEq, Clone)]
 pub struct Trapezoidal {
     a: f32,
@@ -16,11 +17,8 @@ pub struct Trapezoidal {
     d: f32,
 }
 
-// // //
-// Traits implementations
-//
-
 impl Membership for Trapezoidal {}
+
 impl Display for Trapezoidal {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.is_triangular() {
@@ -35,20 +33,16 @@ impl Display for Trapezoidal {
     }
 }
 
-// // //
-// Implementation
-//
-
 impl Trapezoidal {
-    /// Trapezoidal membership function constructor
+    /// Trapezoidal membership function constructor.
     ///
-    /// # Params
-    /// - `limits`: Membership function limits
+    /// # Arguments
+    /// * `limits`: Membership function limits.
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
     /// for (v, e) in [
     ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3]), "(0.00, 0.10, 0.20, 0.30)"),
     ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.1, 0.2]), "(0.00, 0.10, 0.20)"),
@@ -60,25 +54,30 @@ impl Trapezoidal {
     ///
     /// # Panics
     ///
-    /// If `limits.len()` < 3
+    /// If `limits.len() < 3`.
     /// ```should_panic
-    /// assessment::fuzzy::membership::trapezoidal::Trapezoidal::new(&vec![0.0, 0.1]);
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// Trapezoidal::new(&vec![0.0, 0.1]);
     /// ```
     ///
-    /// If `limits.len()` > 4
+    /// If `limits.len() > 4`.
     /// ```should_panic
-    /// assessment::fuzzy::membership::trapezoidal::Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3, 0.4]);
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3, 0.4]);
     /// ```
     ///
-    /// If `limits` are not sorted in ascending order
+    /// If `limits` are not sorted in ascending order.
     /// ```should_panic
-    /// assessment::fuzzy::membership::trapezoidal::Trapezoidal::new(&vec![1.0, 0.1, 0.2, 0.3]);
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// Trapezoidal::new(&vec![1.0, 0.1, 0.2, 0.3]);
     /// ```
     /// ```should_panic
-    /// assessment::fuzzy::membership::trapezoidal::Trapezoidal::new(&vec![1.0, 1.1, 0.2, 0.3]);
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// Trapezoidal::new(&vec![1.0, 1.1, 0.2, 0.3]);
     /// ```
     /// ```should_panic
-    /// assessment::fuzzy::membership::trapezoidal::Trapezoidal::new(&vec![1.0, 1.1, 1.2, 0.3]);
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// Trapezoidal::new(&vec![1.0, 1.1, 1.2, 0.3]);
     /// ```
     pub fn new(limits: &[f32]) -> Self {
         let len = &limits.len();
@@ -106,13 +105,12 @@ impl Trapezoidal {
         }
     }
 
-    /// Check if it is triangular (b == c)
+    /// Check if it is triangular (`b == c`).
     ///
     /// # Examples
     ///
     /// ```
-    /// use assessment::fuzzy::membership::trapezoidal::*;
-    ///
+    /// # use assessment::fuzzy::membership::trapezoidal::*;
     /// for (v, e) in [
     ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.2, 0.3]), false),
     ///     (Trapezoidal::new(&vec![0.0, 0.1, 0.1, 0.2]), true),
