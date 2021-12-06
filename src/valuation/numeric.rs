@@ -60,7 +60,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     ///
     /// # Errors
     ///
-    /// **NumericError::OutsideRange**: If `value > domain superior limit`
+    /// **NumericError::OutsideRange**: If `value > domain superior limit`.
     ///
     /// ```
     /// # use assessment::valuation::numeric::{Numeric, NumericError};
@@ -72,7 +72,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// );
     /// ```
     ///
-    /// **NumericError::OutsideRange**: If `value < domain inferior limit`
+    /// **NumericError::OutsideRange**: If `value < domain inferior limit`.
     ///
     /// ```
     /// # use assessment::valuation::numeric::{Numeric, NumericError};
@@ -83,8 +83,6 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     ///     Err(NumericError::OutsideRange { value: 0, inf: 1, sup: 5 })
     /// );
     /// ```
-    ///
-    /// If `value` is not a valid assessment in `domain`
     pub fn new(domain: &'domain Quantitative<T>, value: T) -> Result<Self, NumericError<T>> {
         if value < domain.inf() || value > domain.sup() {
             Err(NumericError::OutsideRange {
