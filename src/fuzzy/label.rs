@@ -23,7 +23,7 @@ impl<T: LabelMembership + Display> Display for Label<T> {
 /// Label error types.
 #[derive(Debug, PartialEq)]
 pub enum LabelError {
-    /// Non standardized name (see [Label::standardize_name]).
+    /// Non standardized name (see [standardize_name]).
     NonStandardizedName { name: String },
     /// Empty name.
     EmptyName,

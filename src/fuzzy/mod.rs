@@ -5,5 +5,5 @@ pub use label::{Label, LabelError, LabelMembership};
 /// Membership functions.
 pub mod membership;
 
-/// Fussy label.
+/// Fuzzy label.
 pub mod label;

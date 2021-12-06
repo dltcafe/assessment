@@ -103,7 +103,7 @@ impl<T: LabelMembership> Qualitative<T> {
         if let Some(name) = Qualitative::<T>::_find_duplicate(&get_labels_names(&labels)) {
             Err(QualitativeError::DuplicateName { name })
         } else {
-            Ok(Qualitative { labels })
+            Ok(Self { labels })
         }
     }
 

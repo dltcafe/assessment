@@ -20,6 +20,7 @@ pub enum SingleError<'domain, T: LabelMembership> {
         domain: &'domain Qualitative<T>,
         index: usize,
     },
+    /// Invalid label name.
     InvalidName {
         domain: &'domain Qualitative<T>,
         name: String,
@@ -33,7 +34,7 @@ impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
             SingleError::InvalidIndex { domain, index } => {
                 write!(
                     f,
-                    "Invalid label index {} (domain cardinality == {})",
+                    "Invalid label index {} (domain cardinality == {}).",
                     index,
                     domain.cardinality()
                 )
@@ -41,7 +42,7 @@ impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
             SingleError::InvalidName { domain, name } => {
                 write!(
                     f,
-                    "Invalid label name '{}' (domain labels are == {:?})",
+                    "Invalid label name '{}' (domain labels are == {:?}).",
                     name,
                     domain.get_labels_names()
                 )
@@ -72,7 +73,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     ///
     /// # Errors
     ///
-    /// **SingleError::InvalidIndex**: If `index > domain.cardinality() - 1`
+    /// **SingleError::InvalidIndex**: If `index > domain.cardinality() - 1`.
     ///
     /// ```
     /// # use assessment::valuation::{Single, SingleError};
@@ -94,7 +95,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         if index > domain.cardinality() - 1 {
             Err(SingleError::InvalidIndex { domain, index })
         } else {
-            Ok(Single { domain, index })
+            Ok(Self { domain, index })
         }
     }
 
@@ -141,7 +142,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         name: &str,
     ) -> Result<Self, SingleError<'domain, T>> {
         if let Some(index) = domain.label_index(name) {
-            Ok(Single { domain, index })
+            Ok(Self { domain, index })
         } else {
             Err(SingleError::InvalidName {
                 domain,
@@ -150,7 +151,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         }
     }
 
-    /// Returns associated valuation index in domain
+    /// Returns associated valuation index in domain.
     ///
     /// # Examples
     ///
