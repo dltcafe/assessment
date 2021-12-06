@@ -46,7 +46,7 @@ impl<T: LabelMembership + Display> Display for Qualitative<T> {
 }
 
 impl<T: LabelMembership> Qualitative<T> {
-    /// Force that there are no duplicate labels names.
+    /// Returns the first duplicate value.
     fn _find_duplicate(labels: &Vec<&str>) -> Option<String> {
         let mut set = HashSet::new();
         for label in labels {
