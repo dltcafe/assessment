@@ -1,5 +1,4 @@
-use crate::domain::quantitative::QuantitativeLimit;
-use crate::domain::Quantitative;
+use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -45,14 +44,14 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::numeric::Numeric;
+    /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert!(Numeric::new(&domain, 2).is_ok());
     /// ```
     ///
     /// ```
-    /// # use assessment::valuation::numeric::Numeric;
+    /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.2, 5.7).unwrap();
     /// assert!(Numeric::new(&domain, 2.3).is_ok());
@@ -63,7 +62,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// **NumericError::OutsideRange**: If `value > domain superior limit`.
     ///
     /// ```
-    /// # use assessment::valuation::numeric::{Numeric, NumericError};
+    /// # use assessment::valuation::{Numeric, NumericError};
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert_eq!(
@@ -75,7 +74,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// **NumericError::OutsideRange**: If `value < domain inferior limit`.
     ///
     /// ```
-    /// # use assessment::valuation::numeric::{Numeric, NumericError};
+    /// # use assessment::valuation::{Numeric, NumericError};
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert_eq!(
@@ -100,7 +99,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::numeric::Numeric;
+    /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// let valuation = Numeric::new(&domain, 2).unwrap();
@@ -108,7 +107,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// ```
     ///
     /// ```
-    /// # use assessment::valuation::numeric::Numeric;
+    /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.0, 5.7).unwrap();
     /// let valuation = Numeric::new(&domain, 2.0).unwrap();
@@ -123,7 +122,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::numeric::Numeric;
+    /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.0, 5.7).unwrap();
     /// let valuation = Numeric::new(&domain, 2.0).unwrap();

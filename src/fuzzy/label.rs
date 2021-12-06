@@ -52,8 +52,7 @@ impl<T: LabelMembership> Label<T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::fuzzy::label::*;
-    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// # use assessment::fuzzy::{Label, membership::Trapezoidal};
     /// let label = Label::new(
     ///     String::from("a"),
     ///     Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap()
@@ -66,7 +65,7 @@ impl<T: LabelMembership> Label<T> {
     /// **LabelError::NonStandardizedName**: If `name` isn't standardized.
     ///
     /// ```
-    /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// # use assessment::fuzzy::{Label, LabelError, membership::Trapezoidal};
     /// let names = vec![" a", "A", " c "];
     /// for name in names {
     ///     assert_eq!(
@@ -82,7 +81,7 @@ impl<T: LabelMembership> Label<T> {
     /// **LabelError::EmptyName**: If `name.len() == 0`.
     ///
     /// ```
-    /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
+    /// # use assessment::fuzzy::{Label, LabelError, membership::Trapezoidal};
     /// assert_eq!(
     ///     Label::new(
     ///         String::new(),
@@ -107,8 +106,7 @@ impl<T: LabelMembership> Label<T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::fuzzy::label::*;
-    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// # use assessment::fuzzy::{Label, membership::Trapezoidal};
     /// let name = String::from("a");
     /// let label = Label::new(
     ///     name.clone(),
@@ -125,8 +123,7 @@ impl<T: LabelMembership> Label<T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::fuzzy::label::*;
-    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// # use assessment::fuzzy::{Label, membership::Trapezoidal};
     /// let membership = Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap();
     /// let label = Label::new(
     ///     String::from("a"),
@@ -149,8 +146,7 @@ impl<T: LabelMembership> Label<T> {
 /// # Examples
 ///
 /// ```
-/// # use assessment::fuzzy::label::*;
-/// # use assessment::fuzzy::membership::{Membership, Trapezoidal};
+/// # use assessment::fuzzy::label::standardize_name;
 /// for (v, e) in [
 ///     ("ok", "ok"),
 ///     (" NoT oK ", "not ok")
@@ -170,8 +166,7 @@ pub fn standardize_name(name: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// # use assessment::fuzzy::label::*;
-/// # use assessment::fuzzy::membership::Trapezoidal;
+/// # use assessment::fuzzy::label::is_standardized;
 /// for (v, e) in [
 ///     ("ok", true),
 ///     (" NoT oK ", false)
@@ -192,8 +187,6 @@ pub fn is_standardized(name: &str) -> bool {
 ///
 /// ```
 /// # use assessment::fuzzy::label::get_labels_names;
-/// # use assessment::fuzzy::label::Label;
-/// # use assessment::fuzzy::membership::Trapezoidal;
 /// # use assessment::trapezoidal_labels;
 /// let labels = trapezoidal_labels![
 ///     "a" => vec![0.0, 0.0, 1.0],
@@ -229,9 +222,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// ```
 ///
 /// ```
-/// # use assessment::fuzzy::label::Label;
-/// use assessment::fuzzy::membership::Trapezoidal;
-/// use assessment::trapezoidal_labels;
+/// # use assessment::trapezoidal_labels;
 /// let labels = trapezoidal_labels![].unwrap();
 /// assert_eq!(labels.len(), 0);
 /// ```

@@ -1,8 +1,8 @@
 //! Valuations used for assessments.
 
-pub use interval::Interval;
-pub use linguistic::{Linguistic, Single};
-pub use numeric::Numeric;
+pub use interval::{Interval, IntervalError};
+pub use linguistic::{Linguistic, Single, SingleError};
+pub use numeric::{Numeric, NumericError};
 
 /// Numeric struct and related implementations.
 pub mod numeric;

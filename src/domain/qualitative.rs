@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-use crate::fuzzy::label::{Label, LabelMembership, get_labels_names};
+use crate::fuzzy::{label::get_labels_names, Label, LabelMembership};
 
 use super::Domain;
 
@@ -67,8 +67,7 @@ impl<T: LabelMembership> Qualitative<T> {
     ///
     /// ```
     /// # use assessment::domain::Qualitative;
-    /// # use assessment::fuzzy::label::Label;
-    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// # use assessment::fuzzy::{Label, membership::Trapezoidal};
     /// # use assessment::trapezoidal_labels;
     /// // Empty
     /// assert!(Qualitative::new(Vec::<Label<Trapezoidal>>::new()).is_ok());
@@ -78,6 +77,7 @@ impl<T: LabelMembership> Qualitative<T> {
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
     /// ].unwrap();
+    ///
     /// assert!(Qualitative::new(labels).is_ok());
     /// ```
     ///
@@ -86,8 +86,7 @@ impl<T: LabelMembership> Qualitative<T> {
     /// **QualitativeError::DuplicateName**: If there are labels with duplicate names.
     ///
     /// ```
-    /// # use assessment::domain::Qualitative;
-    /// # use assessment::domain::qualitative::QualitativeError;
+    /// # use assessment::domain::{Qualitative, QualitativeError};
     /// # use assessment::trapezoidal_labels;
     /// let labels = trapezoidal_labels![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -101,9 +100,7 @@ impl<T: LabelMembership> Qualitative<T> {
     /// ```
     ///
     pub fn new(labels: Vec<Label<T>>) -> Result<Self, QualitativeError> {
-        if let Some(name) =
-            Qualitative::<T>::_find_duplicate(&get_labels_names(&labels))
-        {
+        if let Some(name) = Qualitative::<T>::_find_duplicate(&get_labels_names(&labels)) {
             Err(QualitativeError::DuplicateName { name })
         } else {
             Ok(Qualitative { labels })

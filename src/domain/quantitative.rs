@@ -56,8 +56,7 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// **QuantitativeError::InvalidRange**: If `inf > sup`.
     ///
     /// ```
-    /// # use assessment::domain::Quantitative;
-    /// # use assessment::domain::quantitative::QuantitativeError;
+    /// # use assessment::domain::{Quantitative, QuantitativeError};
     /// assert_eq!(
     ///     Quantitative::new(10, 5),
     ///     Err(QuantitativeError::InvalidRange { inf: 10, sup: 5 })

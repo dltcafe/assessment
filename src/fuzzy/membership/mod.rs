@@ -1,6 +1,6 @@
 //! Membership functions capture the degree of truth in a given value.
 
-pub use trapezoidal::Trapezoidal;
+pub use trapezoidal::{Trapezoidal, TrapezoidalError};
 
 /// Trapezoidal membership functions.
 pub mod trapezoidal;

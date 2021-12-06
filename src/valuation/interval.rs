@@ -1,5 +1,4 @@
-use crate::domain::quantitative::QuantitativeLimit;
-use crate::domain::Quantitative;
+use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -53,14 +52,14 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::interval::Interval;
+    /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert!(Interval::new(&domain, 2, 3).is_ok());
     /// ```
     ///
     /// ```
-    /// # use assessment::valuation::interval::Interval;
+    /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.2, 5.7).unwrap();
     /// assert!(Interval::new(&domain, 2.3, 2.7).is_ok());
@@ -71,7 +70,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// **IntervalError::InvalidMin**: If `min < domain inferior limit`.
     ///
     /// ```
-    /// # use assessment::valuation::interval::{Interval, IntervalError};
+    /// # use assessment::valuation::{Interval, IntervalError};
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert_eq!(
@@ -83,7 +82,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// **IntervalError::InvalidMax**: If `max > domain superior limit`.
     ///
     /// ```
-    /// # use assessment::valuation::interval::{Interval, IntervalError};
+    /// # use assessment::valuation::{Interval, IntervalError};
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert_eq!(
@@ -95,7 +94,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// **IntervalError::InvalidRange**: If `min > max`.
     ///
     /// ```
-    /// # use assessment::valuation::interval::{Interval, IntervalError};
+    /// # use assessment::valuation::{Interval, IntervalError};
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// assert_eq!(
@@ -126,7 +125,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::interval::Interval;
+    /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1, 5).unwrap();
     /// let valuation = Interval::new(&domain, 2, 3).unwrap();
@@ -134,7 +133,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// ```
     ///
     /// ```
-    /// # use assessment::valuation::interval::Interval;
+    /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.0, 5.7).unwrap();
     /// let valuation = Interval::new(&domain, 2.0, 3.0).unwrap();
@@ -149,7 +148,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::interval::Interval;
+    /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
     /// let domain = Quantitative::new(1.0, 5.7).unwrap();
     /// let valuation = Interval::new(&domain, 2.0, 3.0).unwrap();

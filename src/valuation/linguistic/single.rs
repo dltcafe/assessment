@@ -1,12 +1,7 @@
 use crate::domain::Qualitative;
-use crate::fuzzy::label::{Label, LabelMembership};
+use crate::fuzzy::{Label, LabelMembership};
 use crate::Valuation;
 use std::fmt::{Display, Formatter};
-
-/// Linguistic valuations
-pub trait Linguistic {}
-
-impl Valuation for dyn Linguistic {}
 
 /// Single linguistic valuations
 #[derive(Debug, PartialEq)]
@@ -43,7 +38,7 @@ impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
                     domain.cardinality()
                 )
             }
-            SingleError::InvalidName { domain, name} => {
+            SingleError::InvalidName { domain, name } => {
                 write!(
                     f,
                     "Invalid label name '{}' (domain labels are == {:?})",
@@ -65,8 +60,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::Single;
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::Single;
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -81,8 +75,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// **SingleError::InvalidIndex**: If `index > domain.cardinality() - 1`
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::{Single, SingleError};
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::{Single, SingleError};
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -114,8 +107,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::Single;
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::Single;
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -130,8 +122,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// **SingleError::InvalidName**: If `name` isn't contained in domain's labels.
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::{Single, SingleError};
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::{Single, SingleError};
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -152,7 +143,10 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         if let Some(index) = domain.label_index(name) {
             Ok(Single { domain, index })
         } else {
-            Err(SingleError::InvalidName { domain, name: String::from(name) })
+            Err(SingleError::InvalidName {
+                domain,
+                name: String::from(name),
+            })
         }
     }
 
@@ -161,8 +155,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::Single;
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::Single;
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
@@ -187,8 +180,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::linguistic::Single;
-    /// # use assessment::domain::Qualitative;
+    /// # use assessment::valuation::Single;
     /// # use assessment::qualitative_domain;
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],

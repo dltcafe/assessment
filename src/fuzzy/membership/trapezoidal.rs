@@ -79,7 +79,7 @@ impl Trapezoidal {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::Trapezoidal;
     /// for (v, e) in [
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), "(0.00, 0.10, 0.20, 0.30)"),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "(0.00, 0.10, 0.20)"),
@@ -93,7 +93,7 @@ impl Trapezoidal {
     ///
     /// **TrapezoidalError::NotEnoughValues**: If `limits.len() < 3`.
     /// ```
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::{Trapezoidal, TrapezoidalError};
     /// let limits = vec![0.0, 0.1];
     /// assert_eq!(
     ///     Trapezoidal::new(limits.clone()),
@@ -103,7 +103,7 @@ impl Trapezoidal {
     ///
     /// **TrapezoidalError::TooManyValues**: If `limits.len() > 4`.
     /// ```
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::{Trapezoidal, TrapezoidalError};
     /// let limits = vec![0.0, 0.1, 0.2, 0.3, 0.4];
     /// assert_eq!(
     ///     Trapezoidal::new(limits.clone()),
@@ -113,7 +113,7 @@ impl Trapezoidal {
     ///
     /// **TrapezoidalError::UnorderedValues**: If `limits` are not sorted in ascending order.
     /// ```
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::{Trapezoidal, TrapezoidalError};
     /// let limits = vec![1.0, 0.1, 0.2, 0.3];
     /// assert_eq!(
     ///     Trapezoidal::new(limits.clone()),
@@ -146,7 +146,7 @@ impl Trapezoidal {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
+    /// # use assessment::fuzzy::membership::Trapezoidal;
     /// for (v, e) in [
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), false),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), true),

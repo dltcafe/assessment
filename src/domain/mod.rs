@@ -1,7 +1,7 @@
 //! Domains in which assessments are represented.
 
-pub use qualitative::Qualitative;
-pub use quantitative::Quantitative;
+pub use qualitative::{Qualitative, QualitativeError};
+pub use quantitative::{Quantitative, QuantitativeError, QuantitativeLimit};
 
 /// Quantitative struct and related implementations.
 pub mod quantitative;
