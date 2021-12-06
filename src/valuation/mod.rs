@@ -1,12 +1,11 @@
 //! Valuations used for assessments.
 
 pub use interval::Interval;
-pub use interval::Value as IntervalValue;
-pub use numeric::Numeric;
-pub use numeric::Value as NumericValue;
+//pub use numeric::Numeric;
+//pub use numeric::Value as NumericValue;
 
 /// Numeric struct and related implementations.
-pub mod numeric;
+//pub mod numeric;
 
 /// Interval struct and related implementations.
 pub mod interval;

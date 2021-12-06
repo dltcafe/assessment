@@ -17,6 +17,43 @@ pub struct Trapezoidal {
     d: f32,
 }
 
+/// Trapezoidal errors types
+#[derive(Debug, PartialEq)]
+pub enum TrapezoidalError {
+    /// Not enough values
+    NotEnoughValues { limits: Vec<f32> },
+    /// Too many values
+    TooManyValues { limits: Vec<f32> },
+    /// Unordered values
+    UnorderedValues { limits: Vec<f32> },
+}
+
+impl Display for TrapezoidalError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            TrapezoidalError::NotEnoughValues { limits } => {
+                write!(
+                    f,
+                    "Trapezoidal membership function needs at least 3 values, you provided {}.",
+                    limits.len()
+                )
+            }
+            TrapezoidalError::TooManyValues { limits } => {
+                write!(
+                    f,
+                    "Trapezoidal membership function needs at most 4 values, you provided {}.",
+                    limits.len()
+                )
+            }
+            TrapezoidalError::UnorderedValues { limits: _ } => {
+                write!(
+                    f,
+                    "Trapezoidal membership function needs an ordered array of values."
+                )
+            }
+        }
+    }
+}
 impl Membership for Trapezoidal {}
 
 impl Display for Trapezoidal {
@@ -48,60 +85,59 @@ impl Trapezoidal {
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "(0.00, 0.10, 0.20)"),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), "(0.00, 0.10, 0.20)")
     /// ] {
-    ///     assert_eq!(format!("{}", v), e);
+    ///     assert_eq!(format!("{}", v.unwrap()), e);
     /// }
     /// ```
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If `limits.len() < 3`.
-    /// ```should_panic
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(vec![0.0, 0.1]);
+    /// **TrapezoidalError::NotEnoughValues**: If `limits.len() < 3`.
     /// ```
-    ///
-    /// If `limits.len() > 4`.
-    /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3, 0.4]);
+    /// let limits = vec![0.0, 0.1];
+    /// assert_eq!(
+    ///     Trapezoidal::new(limits.clone()),
+    ///     Err(TrapezoidalError::NotEnoughValues { limits })
+    /// );
     /// ```
     ///
-    /// If `limits` are not sorted in ascending order.
-    /// ```should_panic
-    /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(vec![1.0, 0.1, 0.2, 0.3]);
+    /// **TrapezoidalError::TooManyValues**: If `limits.len() > 4`.
     /// ```
-    /// ```should_panic
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(vec![1.0, 1.1, 0.2, 0.3]);
+    /// let limits = vec![0.0, 0.1, 0.2, 0.3, 0.4];
+    /// assert_eq!(
+    ///     Trapezoidal::new(limits.clone()),
+    ///     Err(TrapezoidalError::TooManyValues { limits })
+    /// );
     /// ```
-    /// ```should_panic
+    ///
+    /// **TrapezoidalError::UnorderedValues**: If `limits` are not sorted in ascending order.
+    /// ```
     /// # use assessment::fuzzy::membership::trapezoidal::*;
-    /// Trapezoidal::new(vec![1.0, 1.1, 1.2, 0.3]);
+    /// let limits = vec![1.0, 0.1, 0.2, 0.3];
+    /// assert_eq!(
+    ///     Trapezoidal::new(limits.clone()),
+    ///     Err(TrapezoidalError::UnorderedValues { limits })
+    /// );
     /// ```
-    pub fn new(limits: Vec<f32>) -> Self {
-        let len = &limits.len();
-
-        // Force 3/4 elements
-        if !(3..5).contains(len) {
-            panic!(
-                "Trapezoidal membership function needs 3 or 4 values, you provided {}",
-                len
-            );
-        }
-
-        // Force order
-        for i in 0..len - 1 {
-            if &limits[i] > &limits[i + 1] {
-                panic!("Trapezoidal membership function needs an ordered array of values. limits[{}] = {} > {} = limits[{}])", i, &limits[i], &limits[i + 1], i + 1);
+    pub fn new(limits: Vec<f32>) -> Result<Self, TrapezoidalError> {
+        let len = limits.len();
+        if len < 3 {
+            Err(TrapezoidalError::NotEnoughValues { limits })
+        } else if len > 4 {
+            Err(TrapezoidalError::TooManyValues { limits })
+        } else {
+            for i in 0..len - 1 {
+                if limits[i] > limits[i + 1] {
+                    return Err(TrapezoidalError::UnorderedValues { limits });
+                }
             }
-        }
-
-        Self {
-            a: limits[0],
-            b: limits[1],
-            c: limits[*len - 2],
-            d: limits[*len - 1],
+            Ok(Self {
+                a: limits[0],
+                b: limits[1],
+                c: limits[len - 2],
+                d: limits[len - 1],
+            })
         }
     }
 
@@ -116,7 +152,7 @@ impl Trapezoidal {
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), true),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), true)
     /// ] {
-    ///     assert_eq!(v.is_triangular(), e);
+    ///     assert_eq!(v.unwrap().is_triangular(), e);
     /// }
     /// ```
     pub fn is_triangular(&self) -> bool {

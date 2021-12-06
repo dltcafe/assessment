@@ -1,15 +1,38 @@
 use super::Domain;
+use std::fmt::{Debug, Display, Formatter};
+
+/// Quantitative limits trait alias
+pub trait QuantitativeLimit = Copy + Display + Debug + PartialOrd;
 
 /// Quantitative domain.
 #[derive(Debug, PartialEq)]
-pub struct Quantitative {
-    inf: f64,
-    sup: f64,
+pub struct Quantitative<T: QuantitativeLimit> {
+    inf: T,
+    sup: T,
 }
 
-impl Domain for Quantitative {}
+/// Quantitative errors types.
+#[derive(Debug, PartialEq)]
+pub enum QuantitativeError<T: QuantitativeLimit> {
+    /// Invalid domain range
+    InvalidRange { inf: T, sup: T },
+}
 
-impl Quantitative {
+// Note: + Display added because clion doesn't detect here correctly the trait_alias feature
+impl<T: QuantitativeLimit + Display> Display for QuantitativeError<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            QuantitativeError::InvalidRange { inf, sup } => {
+                write!(f, "Inf ({}) > Sup ({}).", inf, sup)
+            }
+        }
+    }
+}
+
+impl<T: QuantitativeLimit> Domain for Quantitative<T> {}
+
+// Note: + Copy added because clion doesn't detect here correctly the trait_alias feature
+impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// Quantitative domain constructor.
     ///
     /// # Arguments
@@ -21,25 +44,31 @@ impl Quantitative {
     /// ```
     /// # use assessment::domain::Quantitative;
     /// /// Different inf & sup values
-    /// Quantitative::new(-1.3, 3.4);
-    /// /// Same inf & sup values
-    /// Quantitative::new(-1.3, -1.3);
+    /// assert!(Quantitative::new(-1, 3).is_ok());
+    /// /// Equals inf & sup values
+    /// assert!(Quantitative::new(-1, -1).is_ok());
+    /// /// Float values
+    /// assert!(Quantitative::new(-1.3, -1.2).is_ok());
     /// ```
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If `inf > sup`.
+    /// **QuantitativeError::InvalidRange**: If `inf > sup`.
     ///
-    /// ```should_panic
+    /// ```
     /// # use assessment::domain::Quantitative;
-    /// Quantitative::new(10.0, 5.0);
+    /// # use assessment::domain::quantitative::QuantitativeError;
+    /// assert_eq!(
+    ///     Quantitative::new(10, 5),
+    ///     Err(QuantitativeError::InvalidRange { inf: 10, sup: 5 })
+    /// );
     /// ```
-    pub fn new(inf: f64, sup: f64) -> Self {
+    pub fn new(inf: T, sup: T) -> Result<Self, QuantitativeError<T>> {
         if inf > sup {
-            panic!("min ({}) > Max ({})", inf, sup)
+            Err(QuantitativeError::InvalidRange { inf, sup })
+        } else {
+            Ok(Self { inf, sup })
         }
-
-        Self { inf, sup }
     }
 
     /// Returns domain inferior limit.
@@ -48,11 +77,11 @@ impl Quantitative {
     ///
     /// ```
     /// # use assessment::domain::Quantitative;
-    /// let inf = -1.3;
-    /// let domain = Quantitative::new(inf, 0.0);
+    /// let inf = -1;
+    /// let domain = Quantitative::new(inf, 0).unwrap();
     /// assert_eq!(domain.inf(), inf);
     /// ```
-    pub fn inf(&self) -> f64 {
+    pub fn inf(&self) -> T {
         self.inf
     }
 
@@ -63,10 +92,10 @@ impl Quantitative {
     /// ```
     /// # use assessment::domain::Quantitative;
     /// let sup = 3.4;
-    /// let domain = Quantitative::new(0.0, sup);
+    /// let domain = Quantitative::new(0.0, sup).unwrap();
     /// assert_eq!(domain.sup(), sup);
     /// ```
-    pub fn sup(&self) -> f64 {
+    pub fn sup(&self) -> T {
         self.sup
     }
 
@@ -82,7 +111,7 @@ impl Quantitative {
     /// let inf = -1.3;
     /// let sup = inf + 1.0;
     ///
-    /// let domain = Quantitative::new(inf, sup);
+    /// let domain = Quantitative::new(inf, sup).unwrap();
     ///
     /// for (v, e) in [
     ///     (inf, true),
@@ -95,7 +124,7 @@ impl Quantitative {
     ///     assert_eq!(domain.valid_assessment(v), e);
     /// }
     /// ```
-    pub fn valid_assessment(&self, value: f64) -> bool {
+    pub fn valid_assessment(&self, value: T) -> bool {
         value >= self.inf && value <= self.sup
     }
 }

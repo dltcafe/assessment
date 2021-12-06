@@ -8,6 +8,8 @@
 //!
 //! Note that the library is a **Work In Progress** and is **NOT READY YET**.
 
+#![feature(trait_alias)]
+
 pub use domain::Domain;
 pub use valuation::Valuation;
 

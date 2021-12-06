@@ -1,51 +1,48 @@
-use std::fmt::{Display, Formatter};
+use crate::fuzzy::membership::Membership;
+use std::fmt::{Debug, Display, Formatter};
 
-use crate::fuzzy::membership;
+/// Label's membership trait alias
+pub trait LabelMembership = Membership + Display;
 
 /// Fuzzy label struct.
 ///
 /// It is defined by a membership function and a name.
 #[derive(Debug, PartialEq, Clone)]
-pub struct Label {
+pub struct Label<T: LabelMembership> {
     name: String,
-    membership: SupportedMembership,
+    membership: T,
 }
 
-/// Supported membership functions.
-#[derive(Debug, PartialEq, Clone)]
-pub enum SupportedMembership {
-    Trapezoidal(membership::Trapezoidal),
-}
-
-impl Display for SupportedMembership {
-    fn fmt(&self, mut f: &mut Formatter<'_>) -> std::fmt::Result {
-        match &self {
-            SupportedMembership::Trapezoidal(membership) => membership.fmt(&mut f),
-        }
-    }
-}
-
-impl Display for Label {
+// Note: + Display added because clion doesn't detect here correctly the trait_alias feature
+impl<T: LabelMembership + Display> Display for Label<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} => {}", self.name, self.membership)
     }
 }
 
-impl Label {
-    /// Force `name::trim().to_lowercase() == name` and `name.length > 0`.
-    fn _force_valid_label_name(name: &str) {
-        if name.trim().to_lowercase() != name {
-            panic!(
-                "Name without spaces and to lowercase should be equals to itself, provided \"{}\"",
-                name
-            );
-        }
+/// Label error types.
+#[derive(Debug, PartialEq)]
+pub enum LabelError {
+    /// Non standardized name (see [Label::standardize_name]).
+    NonStandardizedName { name: String },
+    /// Empty name.
+    EmptyName,
+}
 
-        if name.is_empty() {
-            panic!("Name is empty");
+impl Display for LabelError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            LabelError::NonStandardizedName { name } => {
+                write!(f, "Name '{}' isn't standardized.", name)
+            }
+            LabelError::EmptyName => {
+                write!(f, "Empty name provided.")
+            }
         }
     }
+}
 
+impl<T: LabelMembership> Label<T> {
     /// Creates a new label.
     ///
     /// # Arguments
@@ -57,52 +54,52 @@ impl Label {
     /// ```
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
-    /// let name = String::from("a");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
-    /// );
-    /// let label = Label::new(name, membership);
+    /// let label = Label::new(
+    ///     String::from("a"),
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap()
+    /// ).unwrap();
     /// assert_eq!(format!("{}", label), "a => (0.00, 0.50, 1.00)");
     /// ```
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If `name.trim().len() != name.len()`.
+    /// **LabelError::NonStandardizedName**: If `name` isn't standardized.
     ///
-    /// ```should_panic
+    /// ```
     /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    /// let name = String::from(" a");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
-    /// );
-    /// Label::new(name, membership);
+    /// let names = vec![" a", "A", " c "];
+    /// for name in names {
+    ///     assert_eq!(
+    ///         Label::new(
+    ///             name.to_string(),
+    ///             Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap()
+    ///         ),
+    ///         Err(LabelError::NonStandardizedName { name: name.to_string() })
+    ///     );
+    /// }
     /// ```
     ///
-    /// If `name.to_lowercase() != name`.
+    /// **LabelError::EmptyName**: If `name.len() == 0`.
     ///
-    /// ```should_panic
+    /// ```
     /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    /// let name = String::from("A");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
+    /// assert_eq!(
+    ///     Label::new(
+    ///         String::new(),
+    ///         Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap()
+    ///     ),
+    ///     Err(LabelError::EmptyName)
     /// );
-    /// Label::new(name, membership);
     /// ```
     ///
-    /// If `name.len() == 0`.
-    ///
-    /// ```should_panic
-    /// # use assessment::fuzzy::{label::*, membership::Trapezoidal};
-    /// let name = String::from("");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
-    /// );
-    /// Label::new(name, membership);
-    /// ```
-    ///
-    pub fn new(name: String, membership: SupportedMembership) -> Self {
-        Label::_force_valid_label_name(&name);
-        Self { name, membership }
+    pub fn new(name: String, membership: T) -> Result<Self, LabelError> {
+        if !is_standardized(&name) {
+            Err(LabelError::NonStandardizedName { name })
+        } else if name.is_empty() {
+            Err(LabelError::EmptyName)
+        } else {
+            Ok(Self { name, membership })
+        }
     }
 
     /// Returns label name.
@@ -113,10 +110,10 @@ impl Label {
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
     /// let name = String::from("a");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
-    /// );
-    /// let label = Label::new(name.clone(), membership);
+    /// let label = Label::new(
+    ///     name.clone(),
+    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap()
+    /// ).unwrap();
     /// assert_eq!(*label.name(), name);
     /// ```
     pub fn name(&self) -> &String {
@@ -130,16 +127,60 @@ impl Label {
     /// ```
     /// # use assessment::fuzzy::label::*;
     /// # use assessment::fuzzy::membership::Trapezoidal;
-    /// let name = String::from("a");
-    /// let membership = SupportedMembership::Trapezoidal(
-    ///     Trapezoidal::new(vec![0.0, 0.5, 1.0])
-    /// );
-    /// let label = Label::new(name, membership);
+    /// let membership = Trapezoidal::new(vec![0.0, 0.5, 1.0]).unwrap();
+    /// let label = Label::new(
+    ///     String::from("a"),
+    ///     membership
+    /// ).unwrap();
     /// assert_eq!(format!("{}", *label.membership()), "(0.00, 0.50, 1.00)");
     /// ```
-    pub fn membership(&self) -> &SupportedMembership {
+    pub fn membership(&self) -> &T {
         &self.membership
     }
+}
+
+/// Standardizes a name.
+///
+/// A name is standardized if `name == name.trim().to_lowercase().
+///
+/// # Arguments
+/// * `name`: A string slice.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::fuzzy::label::*;
+/// # use assessment::fuzzy::membership::{Membership, Trapezoidal};
+/// for (v, e) in [
+///     ("ok", "ok"),
+///     (" NoT oK ", "not ok")
+/// ] {
+///     assert_eq!(standardize_name(v), e);
+/// }
+/// ```
+pub fn standardize_name(name: &str) -> String {
+    name.trim().to_lowercase()
+}
+
+/// Checks is a name is standardized.
+///
+/// # Arguments
+/// * `name`: A string slice.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::fuzzy::label::*;
+/// # use assessment::fuzzy::membership::Trapezoidal;
+/// for (v, e) in [
+///     ("ok", true),
+///     (" NoT oK ", false)
+/// ] {
+///     assert_eq!(is_standardized(v), e);
+/// }
+/// ```
+pub fn is_standardized(name: &str) -> bool {
+    name.to_string() == standardize_name(name)
 }
 
 #[allow(unused_imports)]
@@ -155,48 +196,82 @@ use crate::fuzzy::membership::Trapezoidal;
 /// let labels = trapezoidal_labels![
 ///     "a" => vec![0.0, 0.0, 1.0],
 ///     "b" => vec![0.0, 1.0, 1.0]
-/// ];
+/// ].unwrap();
 ///
 /// assert_eq!(labels.len(), 2);
 /// assert_eq!(format!("{}", labels[0]), "a => (0.00, 0.00, 1.00)");
 /// assert_eq!(format!("{}", labels[1]), "b => (0.00, 1.00, 1.00)");
 /// ```
 ///
-/// # Panics
-///
-/// If any label name is invalid (see [Label::new]).
-///
-/// ```should_panic
-/// # use assessment::trapezoidal_labels;
-/// trapezoidal_labels![
-///     " a" => vec![0.0, 0.0, 1.0]
-/// ];
+/// ```
+/// # use assessment::fuzzy::label::Label;
+/// use assessment::fuzzy::membership::Trapezoidal;
+/// use assessment::trapezoidal_labels;
+/// let labels = trapezoidal_labels![].unwrap();
+/// assert_eq!(labels.len(), 0);
 /// ```
 ///
-/// If any label limits are invalid (see [Trapezoidal::new])
+/// # Errors
 ///
-/// ```should_panic
+/// **String**: If any label name is invalid (see [Label::new]).
+///
+/// ```
 /// # use assessment::trapezoidal_labels;
-/// trapezoidal_labels![
-///     "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
-/// ];
+/// assert!(
+///     trapezoidal_labels![
+///         " a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
+///     ].is_err()
+/// );
+/// ```
+///
+/// **String**: If any label limits are invalid (see [Trapezoidal::new])
+///
+/// ```
+/// # use assessment::trapezoidal_labels;
+/// assert!(
+///     trapezoidal_labels![
+///         "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
+///     ].is_err()
+/// );
 /// ```
 #[macro_export]
 macro_rules! trapezoidal_labels {
     ( $( $name:expr => $membership:expr ),* ) => {
         {
-            let mut labels = Vec::new();
+            use assessment::fuzzy::label::Label;
+            use assessment::fuzzy::membership::Trapezoidal;
+
+            let mut labels = Vec::<Label<Trapezoidal>>::new();
+            let mut abort = false;
+            let mut error = String::new();
             $(
-                labels.push(
-                    assessment::fuzzy::label::Label::new(
-                        $name.to_string(),
-                        assessment::fuzzy::label::SupportedMembership::Trapezoidal(
-                            assessment::fuzzy::membership::Trapezoidal::new($membership)
-                        )
-                    )
-                );
+                match abort {
+                    false => {
+                        match Trapezoidal::new($membership) {
+                            Ok(t) => {
+                                match Label::new($name.to_string(), t) {
+                                    Ok(l) => labels.push(l),
+                                    Err(e) => {
+                                        error = format!("{}", e);
+                                        abort = true;
+                                    }
+                                }
+                            },
+                            Err(e) => {
+                                error = format!("{}", e);
+                                abort = true;
+                            }
+                        }
+                    },
+                    _ => (),
+                }
             )*
-            labels
+
+            if abort {
+                Err(error)
+            } else {
+                Ok(labels)
+            }
         }
     };
 }

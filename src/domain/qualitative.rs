@@ -1,19 +1,37 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-use crate::fuzzy::label::Label;
+use crate::fuzzy::label::{Label, LabelMembership};
 
 use super::Domain;
 
 /// Qualitative domains.
-#[derive(Debug)]
-pub struct Qualitative {
-    labels: Vec<Label>,
+#[derive(Debug, PartialEq)]
+pub struct Qualitative<T: LabelMembership> {
+    labels: Vec<Label<T>>,
 }
 
-impl Domain for Qualitative {}
+/// Qualitative errors types.
+#[derive(Debug, PartialEq)]
+pub enum QualitativeError {
+    /// Duplicate label name.
+    DuplicateName { name: String },
+}
 
-impl Display for Qualitative {
+// Note: + Display added because clion doesn't detect here correctly the trait_alias feature
+impl Display for QualitativeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            QualitativeError::DuplicateName { name } => {
+                write!(f, "Duplicate label name {}.", name)
+            }
+        }
+    }
+}
+impl<T: LabelMembership> Domain for Qualitative<T> {}
+
+// Note: + Display added because clion doesn't detect here correctly the trait_alias feature
+impl<T: LabelMembership + Display> Display for Qualitative<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -27,20 +45,21 @@ impl Display for Qualitative {
     }
 }
 
-impl Qualitative {
+impl<T: LabelMembership> Qualitative<T> {
     /// Force that there are no duplicate labels names.
-    fn _force_unique_labels_names(labels: &Vec<&str>) {
+    fn _find_duplicate(labels: &Vec<&str>) -> Option<String> {
         let mut set = HashSet::new();
         for label in labels {
             if set.contains(label) {
-                panic!("Duplicate label name {}", label);
+                return Some(String::from(*label));
             }
             set.insert(label);
         }
+        None
     }
 
     /// Returns labels names.
-    fn _get_labels_names(labels: &Vec<Label>) -> Vec<&str> {
+    fn _get_labels_names(labels: &Vec<Label<T>>) -> Vec<&str> {
         labels
             .iter()
             .map(|l| l.name().as_str())
@@ -56,36 +75,47 @@ impl Qualitative {
     ///
     /// ```
     /// # use assessment::domain::Qualitative;
+    /// # use assessment::fuzzy::label::Label;
+    /// # use assessment::fuzzy::membership::Trapezoidal;
     /// # use assessment::trapezoidal_labels;
     /// // Empty
-    /// Qualitative::new(Vec::new());
+    /// assert!(Qualitative::new(Vec::<Label<Trapezoidal>>::new()).is_ok());
     ///
     /// // Or with a vector of (valid) labels
     /// let labels = trapezoidal_labels![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
-    /// Qualitative::new(labels);
+    /// ].unwrap();
+    /// assert!(Qualitative::new(labels).is_ok());
     /// ```
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If there are labels with duplicate names.
+    /// **QualitativeError::DuplicateName**: If there are labels with duplicate names.
     ///
-    /// ```should_panic
+    /// ```
     /// # use assessment::domain::Qualitative;
+    /// # use assessment::domain::qualitative::QualitativeError;
     /// # use assessment::trapezoidal_labels;
     /// let labels = trapezoidal_labels![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "a" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     ///
-    /// Qualitative::new(labels);
+    /// assert_eq!(
+    ///     Qualitative::new(labels),
+    ///     Err(QualitativeError::DuplicateName { name: "a".to_string() })
+    /// );
     /// ```
     ///
-    pub fn new(labels: Vec<Label>) -> Self {
-        Qualitative::_force_unique_labels_names(&Qualitative::_get_labels_names(&labels));
-        Qualitative { labels }
+    pub fn new(labels: Vec<Label<T>>) -> Result<Self, QualitativeError> {
+        if let Some(name) =
+            Qualitative::<T>::_find_duplicate(&Qualitative::<T>::_get_labels_names(&labels))
+        {
+            Err(QualitativeError::DuplicateName { name })
+        } else {
+            Ok(Qualitative { labels })
+        }
     }
 
     /// Returns the number of labels.
@@ -94,7 +124,7 @@ impl Qualitative {
     ///
     /// ```
     /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![];
+    /// let domain = qualitative_domain![].unwrap();
     /// assert_eq!(domain.cardinality(), 0);
     /// ```
     ///
@@ -103,7 +133,7 @@ impl Qualitative {
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     /// assert_eq!(domain.cardinality(), 2);
     /// ```
     ///
@@ -123,7 +153,7 @@ impl Qualitative {
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     ///
     /// for (v, e) in [
     ///     ("a", true),
@@ -149,7 +179,7 @@ impl Qualitative {
     /// let domain = qualitative_domain![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     ///
     /// for (v, e) in [
     ///     ("a", Some(0)),
@@ -178,9 +208,9 @@ impl Qualitative {
     /// let labels = trapezoidal_labels![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     ///
-    /// let domain = Qualitative::new(labels.to_vec());
+    /// let domain = Qualitative::new(labels.to_vec()).unwrap();
     ///
     /// for (v, e) in [
     ///     (0, Some(&labels[0])),
@@ -190,7 +220,7 @@ impl Qualitative {
     ///     assert_eq!(domain.get_label_by_position(v), e);
     /// }
     /// ```
-    pub fn get_label_by_position(&self, position: usize) -> Option<&Label> {
+    pub fn get_label_by_position(&self, position: usize) -> Option<&Label<T>> {
         if position < self.labels.len() {
             Some(&self.labels[position])
         } else {
@@ -211,9 +241,9 @@ impl Qualitative {
     /// let labels = trapezoidal_labels![
     ///     "a" => vec![0.0, 0.0, 1.0],
     ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ];
+    /// ].unwrap();
     ///
-    /// let domain = Qualitative::new(labels.to_vec());
+    /// let domain = Qualitative::new(labels.to_vec()).unwrap();
     ///
     /// for (v, e) in [
     ///     ("a", Some(&labels[0])),
@@ -224,7 +254,7 @@ impl Qualitative {
     /// }
     /// ```
     ///
-    pub fn get_label_by_name(&self, name: &str) -> Option<&Label> {
+    pub fn get_label_by_name(&self, name: &str) -> Option<&Label<T>> {
         if let Some(position) = self.label_position(name) {
             Some(&self.labels[position])
         } else {
@@ -246,7 +276,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// let domain = qualitative_domain![
 ///     "a" => vec![0.0, 0.0, 1.0],
 ///     "b" => vec![0.0, 1.0, 1.0]
-/// ];
+/// ].unwrap();
 ///
 /// assert_eq!(
 ///     format!("{}", domain),
@@ -254,44 +284,56 @@ use crate::fuzzy::membership::Trapezoidal;
 /// );
 /// ```
 ///
-/// # Panics
+/// # Errors
 ///
-/// If any label name is invalid ([Label::new]).
+/// **&str**: If any label name is invalid ([Label::new]).
 ///
-/// ```should_panic
+/// ```
 /// # use assessment::qualitative_domain;
-/// qualitative_domain![
-///     " a" => vec![0.0, 0.0, 1.0]
-/// ];
+/// assert!(
+///     qualitative_domain![
+///         " a" => vec![0.0, 0.0, 1.0]
+///     ].is_err()
+/// );
 /// ```
 ///
-/// If any label limits are invalid (see [Trapezoidal::new]).
+/// **&str**: If any label limits are invalid (see [Trapezoidal::new]).
 ///
-/// ```should_panic
+/// ```
 /// # use assessment::qualitative_domain;
-/// qualitative_domain![
-///     "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
-/// ];
+/// assert!(
+///     qualitative_domain![
+///         "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
+///     ].is_err()
+/// );
 /// ```
 ///
-/// If labels are invalid (see [Qualitative::new]).
+/// **&str**: If labels are invalid (see [Qualitative::new]).
 ///
-/// ```should_panic
+/// ```
 /// # use assessment::qualitative_domain;
-/// qualitative_domain![
-///     "a" => vec![0.0, 0.0, 1.0],
-///     "a" => vec![0.0, 1.0, 1.0]
-/// ];
+/// assert!(
+///     qualitative_domain![
+///         "a" => vec![0.0, 0.0, 1.0],
+///         "a" => vec![0.0, 1.0, 1.0]
+///     ].is_err()
+/// );
 /// ```
 #[macro_export]
 macro_rules! qualitative_domain {
     ( $( $name:expr => $membership:expr ),* ) => {
         {
-            assessment::domain::Qualitative::new(
-                assessment::trapezoidal_labels![
-                    $( $name => $membership ),*
-                ]
-            )
+            use assessment::trapezoidal_labels;
+            use assessment::domain::Qualitative;
+            match trapezoidal_labels![$( $name => $membership ),*] {
+                Ok(labels) => {
+                    match Qualitative::new(labels) {
+                        Ok(domain) => Ok(domain),
+                        Err(e) => Err(format!("{}", e)),
+                    }
+                },
+                Err(e) => Err(format!("{}", e))
+            }
         }
-    };
+    }
 }
