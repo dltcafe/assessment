@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-use crate::fuzzy::label::{Label, LabelMembership};
+use crate::fuzzy::label::{Label, LabelMembership, get_labels_names};
 
 use super::Domain;
 
@@ -58,14 +58,6 @@ impl<T: LabelMembership> Qualitative<T> {
         None
     }
 
-    /// Returns labels names.
-    fn _get_labels_names(labels: &Vec<Label<T>>) -> Vec<&str> {
-        labels
-            .iter()
-            .map(|l| l.name().as_str())
-            .collect::<Vec<&str>>()
-    }
-
     /// Qualitative domain constructor.
     ///
     /// # Arguments
@@ -110,7 +102,7 @@ impl<T: LabelMembership> Qualitative<T> {
     ///
     pub fn new(labels: Vec<Label<T>>) -> Result<Self, QualitativeError> {
         if let Some(name) =
-            Qualitative::<T>::_find_duplicate(&Qualitative::<T>::_get_labels_names(&labels))
+            Qualitative::<T>::_find_duplicate(&get_labels_names(&labels))
         {
             Err(QualitativeError::DuplicateName { name })
         } else {
@@ -164,10 +156,10 @@ impl<T: LabelMembership> Qualitative<T> {
     /// }
     /// ```
     pub fn contains_label(&self, name: &str) -> bool {
-        Qualitative::_get_labels_names(&self.labels).contains(&name)
+        get_labels_names(&self.labels).contains(&name)
     }
 
-    /// Returns label position if there is a label which this name.
+    /// Returns label index if there is a label which this name.
     ///
     /// # Arguments
     /// * `name`: Label name.
@@ -186,19 +178,19 @@ impl<T: LabelMembership> Qualitative<T> {
     ///     ("b", Some(1)),
     ///     ("c", None)
     /// ] {
-    ///     assert_eq!(domain.label_position(v), e);
+    ///     assert_eq!(domain.label_index(v), e);
     /// }
     /// ```
-    pub fn label_position(&self, name: &str) -> Option<usize> {
-        Qualitative::_get_labels_names(&self.labels)
+    pub fn label_index(&self, name: &str) -> Option<usize> {
+        get_labels_names(&self.labels)
             .iter()
             .position(|&v| v.eq(name))
     }
 
-    /// Get a label given its position.
+    /// Get a label given its index.
     ///
     /// # Arguments
-    /// * `position`: Label position.
+    /// * `index`: Label index.
     ///
     /// # Examples
     ///
@@ -217,12 +209,12 @@ impl<T: LabelMembership> Qualitative<T> {
     ///     (1, Some(&labels[1])),
     ///     (2, None)
     /// ] {
-    ///     assert_eq!(domain.get_label_by_position(v), e);
+    ///     assert_eq!(domain.get_label_by_index(v), e);
     /// }
     /// ```
-    pub fn get_label_by_position(&self, position: usize) -> Option<&Label<T>> {
-        if position < self.labels.len() {
-            Some(&self.labels[position])
+    pub fn get_label_by_index(&self, index: usize) -> Option<&Label<T>> {
+        if index < self.labels.len() {
+            Some(&self.labels[index])
         } else {
             None
         }
@@ -253,13 +245,31 @@ impl<T: LabelMembership> Qualitative<T> {
     ///     assert_eq!(domain.get_label_by_name(v), e);
     /// }
     /// ```
-    ///
     pub fn get_label_by_name(&self, name: &str) -> Option<&Label<T>> {
-        if let Some(position) = self.label_position(name) {
-            Some(&self.labels[position])
+        if let Some(index) = self.label_index(name) {
+            Some(&self.labels[index])
         } else {
             None
         }
+    }
+
+    /// Returns labels names.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::trapezoidal_labels;
+    /// # use assessment::domain::Qualitative;
+    /// let labels = trapezoidal_labels![
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
+    /// ].unwrap();
+    ///
+    /// let domain = Qualitative::new(labels.to_vec()).unwrap();
+    ///assert_eq!(domain.get_labels_names(), vec!["a", "b"]);
+    /// ```
+    pub fn get_labels_names(&self) -> Vec<&str> {
+        get_labels_names(&self.labels)
     }
 }
 
@@ -286,7 +296,7 @@ use crate::fuzzy::membership::Trapezoidal;
 ///
 /// # Errors
 ///
-/// **&str**: If any label name is invalid ([Label::new]).
+/// **String**: If any label name is invalid ([Label::new]).
 ///
 /// ```
 /// # use assessment::qualitative_domain;
@@ -297,7 +307,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// );
 /// ```
 ///
-/// **&str**: If any label limits are invalid (see [Trapezoidal::new]).
+/// **String**: If any label limits are invalid (see [Trapezoidal::new]).
 ///
 /// ```
 /// # use assessment::qualitative_domain;
@@ -308,7 +318,7 @@ use crate::fuzzy::membership::Trapezoidal;
 /// );
 /// ```
 ///
-/// **&str**: If labels are invalid (see [Qualitative::new]).
+/// **String**: If labels are invalid (see [Qualitative::new]).
 ///
 /// ```
 /// # use assessment::qualitative_domain;

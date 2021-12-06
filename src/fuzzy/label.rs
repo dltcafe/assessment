@@ -183,6 +183,31 @@ pub fn is_standardized(name: &str) -> bool {
     name.to_string() == standardize_name(name)
 }
 
+/// Returns labels names.
+///
+/// # Arguments
+/// * `labels`: A vector of labels.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::fuzzy::label::get_labels_names;
+/// # use assessment::fuzzy::label::Label;
+/// # use assessment::fuzzy::membership::Trapezoidal;
+/// # use assessment::trapezoidal_labels;
+/// let labels = trapezoidal_labels![
+///     "a" => vec![0.0, 0.0, 1.0],
+///     "b" => vec![0.0, 1.0, 1.0]
+/// ].unwrap();
+/// assert_eq!(get_labels_names(&labels), vec!["a", "b"]);
+/// ```
+pub fn get_labels_names<T: Display + LabelMembership>(labels: &Vec<Label<T>>) -> Vec<&str> {
+    labels
+        .iter()
+        .map(|l| l.name().as_str())
+        .collect::<Vec<&str>>()
+}
+
 #[allow(unused_imports)]
 use crate::fuzzy::membership::Trapezoidal;
 /// Trapezoidal labels.
