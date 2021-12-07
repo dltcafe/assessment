@@ -1,9 +1,13 @@
-//! Domains in which assessments are represented
+//! Domains in which assessments are represented.
 
-pub use quantitative::Quantitative;
+pub use qualitative::{Qualitative, QualitativeError};
+pub use quantitative::{Quantitative, QuantitativeError, QuantitativeLimit};
 
-/// Quantitative struct and related implementations
+/// Quantitative struct and related implementations.
 pub mod quantitative;
 
-/// Base trait for domains
+/// Qualitative struct and related implementations.
+pub mod qualitative;
+
+/// Base trait for domains.
 pub trait Domain {}

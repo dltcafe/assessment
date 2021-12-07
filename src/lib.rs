@@ -8,9 +8,11 @@
 //!
 //! Note that the library is a **Work In Progress** and is **NOT READY YET**.
 
-pub mod domain;
-pub mod valuation;
+#![feature(trait_alias)]
 
 pub use domain::Domain;
-
 pub use valuation::Valuation;
+
+pub mod domain;
+pub mod fuzzy;
+pub mod valuation;

@@ -1,16 +1,20 @@
-//! Valuations used for assessments
+//! Valuations used for assessments.
 
-pub use numeric::Numeric;
-pub use numeric::Value as NumericValue;
+pub use interval::{Interval, IntervalError};
+pub use linguistic::{
+    Hesitant, HesitantError, HesitantRelation, Linguistic, Single, SingleError, TwoTuple,
+    TwoTupleError,
+};
+pub use numeric::{Numeric, NumericError};
 
-pub use interval::Interval;
-pub use interval::Value as IntervalValue;
-
-/// Numeric struct and related implementations
-pub mod numeric;
-
-/// Interval struct and related implementations
+/// Interval struct and related implementations.
 pub mod interval;
 
-/// Base trait for valuations
+/// Linguistic trait and valuations implementations.
+pub mod linguistic;
+
+/// Numeric struct and related implementations.
+pub mod numeric;
+
+/// Base trait for valuations.
 pub trait Valuation {}
