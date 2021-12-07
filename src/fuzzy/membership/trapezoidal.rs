@@ -30,22 +30,23 @@ pub enum TrapezoidalError {
 
 impl Display for TrapezoidalError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use TrapezoidalError::*;
         match &self {
-            TrapezoidalError::NotEnoughValues { limits } => {
+            NotEnoughValues { limits } => {
                 write!(
                     f,
                     "Trapezoidal membership function needs at least 3 values, you provided {}.",
                     limits.len()
                 )
             }
-            TrapezoidalError::TooManyValues { limits } => {
+            TooManyValues { limits } => {
                 write!(
                     f,
                     "Trapezoidal membership function needs at most 4 values, you provided {}.",
                     limits.len()
                 )
             }
-            TrapezoidalError::UnorderedValues { limits: _ } => {
+            UnorderedValues { limits: _ } => {
                 write!(
                     f,
                     "Trapezoidal membership function needs an ordered array of values."
@@ -121,15 +122,16 @@ impl Trapezoidal {
     /// );
     /// ```
     pub fn new(limits: Vec<f32>) -> Result<Self, TrapezoidalError> {
+        use TrapezoidalError::*;
         let len = limits.len();
         if len < 3 {
-            Err(TrapezoidalError::NotEnoughValues { limits })
+            Err(NotEnoughValues { limits })
         } else if len > 4 {
-            Err(TrapezoidalError::TooManyValues { limits })
+            Err(TooManyValues { limits })
         } else {
             for i in 0..len - 1 {
                 if limits[i] > limits[i + 1] {
-                    return Err(TrapezoidalError::UnorderedValues { limits });
+                    return Err(UnorderedValues { limits });
                 }
             }
             Ok(Self {

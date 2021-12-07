@@ -19,8 +19,9 @@ pub enum NumericError<T: QuantitativeLimit> {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl<T: QuantitativeLimit + Display> Display for NumericError<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use NumericError::*;
         match &self {
-            NumericError::OutsideRange { value, inf, sup } => {
+            OutsideRange { value, inf, sup } => {
                 write!(
                     f,
                     "Value should be in the range [{}-{}], provided {}.",
@@ -83,8 +84,9 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// );
     /// ```
     pub fn new(domain: &'domain Quantitative<T>, value: T) -> Result<Self, NumericError<T>> {
+        use NumericError::*;
         if value < domain.inf() || value > domain.sup() {
-            Err(NumericError::OutsideRange {
+            Err(OutsideRange {
                 value,
                 inf: domain.inf(),
                 sup: domain.sup(),
@@ -124,6 +126,7 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// ```
     /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
+    /// # use assessment::Valuation;
     /// let domain = Quantitative::new(1.0, 5.7).unwrap();
     /// let valuation = Numeric::new(&domain, 2.0).unwrap();
     /// assert_eq!(*valuation.domain(), domain);

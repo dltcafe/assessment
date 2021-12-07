@@ -1,5 +1,6 @@
 use crate::domain::Qualitative;
 use crate::fuzzy::{Label, LabelMembership};
+use crate::valuation::Linguistic;
 use crate::Valuation;
 use std::fmt::{Display, Formatter};
 
@@ -13,8 +14,6 @@ pub struct TwoTuple<'domain, T: LabelMembership> {
     index: usize,
     alpha: f32,
 }
-
-impl<'domain, T: LabelMembership> Valuation for TwoTuple<'domain, T> {}
 
 /// TwoTuple errors types.
 #[derive(Debug, PartialEq)]
@@ -40,8 +39,9 @@ pub enum TwoTupleError<'domain, T: LabelMembership> {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl<'domain, T: LabelMembership> Display for TwoTupleError<'domain, T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use TwoTupleError::*;
         match &self {
-            TwoTupleError::InvalidIndex { domain, index } => {
+            InvalidIndex { domain, index } => {
                 write!(
                     f,
                     "Invalid label index {} (domain cardinality == {}).",
@@ -49,7 +49,7 @@ impl<'domain, T: LabelMembership> Display for TwoTupleError<'domain, T> {
                     domain.cardinality()
                 )
             }
-            TwoTupleError::InvalidName { domain, name } => {
+            InvalidName { domain, name } => {
                 write!(
                     f,
                     "Invalid label name '{}' (domain labels are == {:?}).",
@@ -57,21 +57,21 @@ impl<'domain, T: LabelMembership> Display for TwoTupleError<'domain, T> {
                     domain.get_labels_names()
                 )
             }
-            TwoTupleError::InvalidSymbolicTranslationValue { alpha } => {
+            InvalidSymbolicTranslationValue { alpha } => {
                 write!(
                     f,
                     "Invalid symbolic translation value '{:.2}'. Value should be in range == [-0.5, 0.5).",
                     alpha
                 )
             }
-            TwoTupleError::InvalidSymbolicTranslationOnFirstLabel { alpha } => {
+            InvalidSymbolicTranslationOnFirstLabel { alpha } => {
                 write!(
                     f,
                     "Invalid symbolic translation value '{:.2}' on first label. Value should be in range [0, 0.5).",
                     alpha
                 )
             }
-            TwoTupleError::InvalidSymbolicTranslationOnLastLabel { alpha } => {
+            InvalidSymbolicTranslationOnLastLabel { alpha } => {
                 write!(
                     f,
                     "Invalid symbolic translation value '{:.2}' on last label. Value should be in range == [-0.5, 0].",
@@ -81,6 +81,9 @@ impl<'domain, T: LabelMembership> Display for TwoTupleError<'domain, T> {
         }
     }
 }
+
+impl<'domain, T: LabelMembership> Linguistic for TwoTuple<'domain, T> {}
+impl<'domain, T: LabelMembership> Valuation for TwoTuple<'domain, T> {}
 
 impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     /// Creates a new valuation given label `index` in `domain` and symbolic translation value.
@@ -105,7 +108,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     ///
     /// # Errors
     ///
-    /// **TwoTupleError::InvalidIndex**: If `index > domain.cardinality() - 1`.
+    /// **TwoTupleError::InvalidIndex**: If `index >= domain.cardinality()`.
     ///
     /// ```
     /// # use assessment::valuation::{TwoTuple, TwoTupleError};
@@ -180,15 +183,16 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
         index: usize,
         mut alpha: f32,
     ) -> Result<Self, TwoTupleError<'domain, T>> {
+        use TwoTupleError::*;
         alpha = f32::trunc(alpha * ALPHA_POW) / ALPHA_POW;
         if index > domain.cardinality() - 1 {
-            Err(TwoTupleError::InvalidIndex { domain, index })
+            Err(InvalidIndex { domain, index })
         } else if alpha < -0.5 || alpha >= 0.5 {
-            Err(TwoTupleError::InvalidSymbolicTranslationValue { alpha })
+            Err(InvalidSymbolicTranslationValue { alpha })
         } else if index == 0 && alpha < 0.0 {
-            Err(TwoTupleError::InvalidSymbolicTranslationOnFirstLabel { alpha })
+            Err(InvalidSymbolicTranslationOnFirstLabel { alpha })
         } else if index == domain.cardinality() - 1 && alpha > 0.0 {
-            Err(TwoTupleError::InvalidSymbolicTranslationOnLastLabel { alpha })
+            Err(InvalidSymbolicTranslationOnLastLabel { alpha })
         } else {
             Ok(Self {
                 domain,
@@ -297,10 +301,11 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
         name: &str,
         alpha: f32,
     ) -> Result<Self, TwoTupleError<'domain, T>> {
+        use TwoTupleError::*;
         if let Some(index) = domain.label_index(name) {
             TwoTuple::new_by_label_index(domain, index, alpha)
         } else {
-            Err(TwoTupleError::InvalidName {
+            Err(InvalidName {
                 domain,
                 name: String::from(name),
             })
@@ -413,7 +418,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     ///
     /// # Errors
     ///
-    /// **TwoTupleError::InvalidIndex**: If `index > domain.cardinality() - 1`.
+    /// **TwoTupleError::InvalidIndex**: If `index >= domain.cardinality()`.
     ///
     /// ```
     /// # use assessment::valuation::{TwoTuple, TwoTupleError};
@@ -489,5 +494,24 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     /// ```
     pub fn inverse_delta(&self) -> f32 {
         self.index as f32 + self.alpha
+    }
+
+    /// Returns valuation domain.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::TwoTuple;
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::Valuation;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
+    /// ].unwrap();
+    ///
+    /// assert_eq!(*TwoTuple::new_by_label_index(&domain, 0, 0.0).unwrap().domain(), domain);
+    /// ```
+    pub fn domain(&self) -> &'domain Qualitative<T> {
+        self.domain
     }
 }

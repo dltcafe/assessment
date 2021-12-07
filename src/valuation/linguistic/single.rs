@@ -1,5 +1,6 @@
 use crate::domain::Qualitative;
 use crate::fuzzy::{Label, LabelMembership};
+use crate::valuation::Linguistic;
 use crate::Valuation;
 use std::fmt::{Display, Formatter};
 
@@ -9,8 +10,6 @@ pub struct Single<'domain, T: LabelMembership> {
     domain: &'domain Qualitative<T>,
     index: usize,
 }
-
-impl<'domain, T: LabelMembership> Valuation for Single<'domain, T> {}
 
 /// Single errors types.
 #[derive(Debug, PartialEq)]
@@ -30,8 +29,9 @@ pub enum SingleError<'domain, T: LabelMembership> {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use SingleError::*;
         match &self {
-            SingleError::InvalidIndex { domain, index } => {
+            InvalidIndex { domain, index } => {
                 write!(
                     f,
                     "Invalid label index {} (domain cardinality == {}).",
@@ -39,7 +39,7 @@ impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
                     domain.cardinality()
                 )
             }
-            SingleError::InvalidName { domain, name } => {
+            InvalidName { domain, name } => {
                 write!(
                     f,
                     "Invalid label name '{}' (domain labels are == {:?}).",
@@ -50,6 +50,9 @@ impl<'domain, T: LabelMembership> Display for SingleError<'domain, T> {
         }
     }
 }
+
+impl<'domain, T: LabelMembership> Linguistic for Single<'domain, T> {}
+impl<'domain, T: LabelMembership> Valuation for Single<'domain, T> {}
 
 impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// Creates a new valuation given label `index` in `domain`.
@@ -73,7 +76,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     ///
     /// # Errors
     ///
-    /// **SingleError::InvalidIndex**: If `index > domain.cardinality() - 1`.
+    /// **SingleError::InvalidIndex**: If `index >= domain.cardinality()`.
     ///
     /// ```
     /// # use assessment::valuation::{Single, SingleError};
@@ -92,8 +95,9 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         domain: &'domain Qualitative<T>,
         index: usize,
     ) -> Result<Self, SingleError<'domain, T>> {
-        if index > domain.cardinality() - 1 {
-            Err(SingleError::InvalidIndex { domain, index })
+        use SingleError::*;
+        if index >= domain.cardinality() {
+            Err(InvalidIndex { domain, index })
         } else {
             Ok(Self { domain, index })
         }
@@ -141,10 +145,11 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
         domain: &'domain Qualitative<T>,
         name: &str,
     ) -> Result<Self, SingleError<'domain, T>> {
+        use SingleError::*;
         if let Some(index) = domain.label_index(name) {
             Ok(Self { domain, index })
         } else {
-            Err(SingleError::InvalidName {
+            Err(InvalidName {
                 domain,
                 name: String::from(name),
             })
@@ -199,5 +204,24 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// ```
     pub fn label(&self) -> &Label<T> {
         &self.domain.get_label_by_index(self.index).unwrap()
+    }
+
+    /// Returns valuation domain.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Single;
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::Valuation;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 1.0],
+    ///     "b" => vec![0.0, 1.0, 1.0]
+    /// ].unwrap();
+    ///
+    /// assert_eq!(*Single::new_by_label_index(&domain, 0).unwrap().domain(), domain);
+    /// ```
+    pub fn domain(&self) -> &'domain Qualitative<T> {
+        self.domain
     }
 }

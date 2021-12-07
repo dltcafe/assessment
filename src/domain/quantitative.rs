@@ -21,8 +21,9 @@ pub enum QuantitativeError<T: QuantitativeLimit> {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl<T: QuantitativeLimit + Display> Display for QuantitativeError<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use QuantitativeError::*;
         match &self {
-            QuantitativeError::InvalidRange { inf, sup } => {
+            InvalidRange { inf, sup } => {
                 write!(f, "Inf ({}) > Sup ({}).", inf, sup)
             }
         }
@@ -63,8 +64,9 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// );
     /// ```
     pub fn new(inf: T, sup: T) -> Result<Self, QuantitativeError<T>> {
+        use QuantitativeError::*;
         if inf > sup {
-            Err(QuantitativeError::InvalidRange { inf, sup })
+            Err(InvalidRange { inf, sup })
         } else {
             Ok(Self { inf, sup })
         }

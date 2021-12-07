@@ -1,7 +1,10 @@
 //! Valuations used for assessments.
 
 pub use interval::{Interval, IntervalError};
-pub use linguistic::{Linguistic, Single, SingleError, TwoTuple, TwoTupleError};
+pub use linguistic::{
+    Hesitant, HesitantError, HesitantRelation, Linguistic, Single, SingleError, TwoTuple,
+    TwoTupleError,
+};
 pub use numeric::{Numeric, NumericError};
 
 /// Interval struct and related implementations.

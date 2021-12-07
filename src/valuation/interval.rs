@@ -24,14 +24,15 @@ pub enum IntervalError<T: QuantitativeLimit> {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl<T: QuantitativeLimit + Display> Display for IntervalError<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use IntervalError::*;
         match &self {
-            IntervalError::InvalidRange { min, max } => {
+            InvalidRange { min, max } => {
                 write!(f, "Min ({}) > Max ({}).", min, max)
             }
-            IntervalError::InvalidMin { min, inf } => {
+            InvalidMin { min, inf } => {
                 write!(f, "Min ({}) < Inf ({}).", min, inf)
             }
-            IntervalError::InvalidMax { max, sup } => {
+            InvalidMax { max, sup } => {
                 write!(f, "Max ({}) > Sup ({}).", max, sup)
             }
         }
@@ -103,15 +104,16 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// );
     /// ```
     pub fn new(domain: &'domain Quantitative<T>, min: T, max: T) -> Result<Self, IntervalError<T>> {
+        use IntervalError::*;
         if min > max {
-            Err(IntervalError::InvalidRange { min, max })
+            Err(InvalidRange { min, max })
         } else if min < domain.inf() {
-            Err(IntervalError::InvalidMin {
+            Err(InvalidMin {
                 min,
                 inf: domain.inf(),
             })
         } else if max > domain.sup() {
-            Err(IntervalError::InvalidMax {
+            Err(InvalidMax {
                 max,
                 sup: domain.sup(),
             })

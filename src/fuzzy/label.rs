@@ -31,11 +31,12 @@ pub enum LabelError {
 
 impl Display for LabelError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use LabelError::*;
         match &self {
-            LabelError::NonStandardizedName { name } => {
+            NonStandardizedName { name } => {
                 write!(f, "Name '{}' isn't standardized.", name)
             }
-            LabelError::EmptyName => {
+            EmptyName => {
                 write!(f, "Empty name provided.")
             }
         }
@@ -92,10 +93,11 @@ impl<T: LabelMembership> Label<T> {
     /// ```
     ///
     pub fn new(name: String, membership: T) -> Result<Self, LabelError> {
+        use LabelError::*;
         if !is_standardized(&name) {
-            Err(LabelError::NonStandardizedName { name })
+            Err(NonStandardizedName { name })
         } else if name.is_empty() {
-            Err(LabelError::EmptyName)
+            Err(EmptyName)
         } else {
             Ok(Self { name, membership })
         }

@@ -21,8 +21,9 @@ pub enum QualitativeError {
 // Note: + Display added because clion doesn't detect here correctly the trait_alias feature
 impl Display for QualitativeError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use QualitativeError::*;
         match &self {
-            QualitativeError::DuplicateName { name } => {
+            DuplicateName { name } => {
                 write!(f, "Duplicate label name {}.", name)
             }
         }
@@ -100,8 +101,9 @@ impl<T: LabelMembership> Qualitative<T> {
     /// ```
     ///
     pub fn new(labels: Vec<Label<T>>) -> Result<Self, QualitativeError> {
+        use QualitativeError::*;
         if let Some(name) = Qualitative::<T>::_find_duplicate(&get_labels_names(&labels)) {
-            Err(QualitativeError::DuplicateName { name })
+            Err(DuplicateName { name })
         } else {
             Ok(Self { labels })
         }
