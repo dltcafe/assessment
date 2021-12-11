@@ -184,7 +184,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
         mut alpha: f32,
     ) -> Result<Self, TwoTupleError<'domain, T>> {
         use TwoTupleError::*;
-        alpha = f32::trunc(alpha * ALPHA_POW) / ALPHA_POW;
+        alpha = f32::round(alpha * ALPHA_POW) / ALPHA_POW;
         if index > domain.cardinality() - 1 {
             Err(InvalidIndex { domain, index })
         } else if alpha < -0.5 || alpha >= 0.5 {

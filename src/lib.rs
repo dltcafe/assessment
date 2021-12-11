@@ -9,6 +9,7 @@
 //! Note that the library is a **Work In Progress** and is **NOT READY YET**.
 
 #![feature(trait_alias)]
+#![macro_use] extern crate impl_ops;
 
 pub use domain::Domain;
 pub use valuation::Valuation;
