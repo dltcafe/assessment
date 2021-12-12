@@ -273,12 +273,10 @@ impl Trapezoidal {
     /// ```
     pub fn is_symmetrical_respect_center(&self, other: &Trapezoidal, center: f32) -> bool {
         let r = 2. * center;
-        let potential =
-            Trapezoidal::new(vec![r - self.d, r - self.c, r - self.b, r - self.a]).unwrap();
-        utilities::math::approx_equal_f32(potential.a, other.a, 5)
-            && utilities::math::approx_equal_f32(potential.b, other.b, 5)
-            && utilities::math::approx_equal_f32(potential.c, other.c, 5)
-            && utilities::math::approx_equal_f32(potential.d, other.d, 5)
+        utilities::math::approx_equal_f32(r - self.d, other.a, 5)
+            && utilities::math::approx_equal_f32(r - self.c, other.b, 5)
+            && utilities::math::approx_equal_f32(r - self.b, other.c, 5)
+            && utilities::math::approx_equal_f32(r - self.a, other.d, 5)
     }
 
     /// Returns membership value in point `x`.
