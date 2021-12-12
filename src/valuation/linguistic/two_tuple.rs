@@ -1,11 +1,9 @@
 use crate::domain::Qualitative;
 use crate::fuzzy::{Label, LabelMembership};
+use crate::utilities;
 use crate::valuation::Linguistic;
 use crate::Valuation;
 use std::fmt::{Display, Formatter};
-
-const ALPHA_DECIMALS: u32 = 5;
-const ALPHA_POW: f32 = 10_u32.pow(ALPHA_DECIMALS) as f32;
 
 /// TwoTuple linguistic valuations.
 #[derive(Debug, PartialEq)]
@@ -184,7 +182,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
         mut alpha: f32,
     ) -> Result<Self, TwoTupleError<'domain, T>> {
         use TwoTupleError::*;
-        alpha = f32::round(alpha * ALPHA_POW) / ALPHA_POW;
+        alpha = utilities::math::round_f32(alpha, 5);
         if index > domain.cardinality() - 1 {
             Err(InvalidIndex { domain, index })
         } else if alpha < -0.5 || alpha >= 0.5 {

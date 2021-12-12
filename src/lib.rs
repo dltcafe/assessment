@@ -17,4 +17,5 @@ pub use valuation::Valuation;
 
 pub mod domain;
 pub mod fuzzy;
+pub mod utilities;
 pub mod valuation;

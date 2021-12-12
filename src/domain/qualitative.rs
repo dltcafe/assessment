@@ -362,6 +362,58 @@ impl Qualitative<Trapezoidal> {
     pub fn is_tor(&self) -> bool {
         self.is_odd() && self.is_triangular() && self.is_fuzzy_partition()
     }
+
+    /// Checks if the domain is symmetrical.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.5, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1.0/3.0, 2.0/3.0], "c" => vec![1.0/3.0, 2.0/3.0, 1.0], "d" => vec![2.0/3.0, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_symmetrical(), e);
+    /// }
+    /// ```
+    pub fn is_symmetrical(&self) -> bool {
+        let cardinality = self.cardinality();
+
+        if cardinality == 0 {
+            return true;
+        }
+
+        let center_pos = cardinality / 2;
+        let centroid;
+
+        if self.is_odd() {
+            let center_label = &self.labels[center_pos];
+            if !center_label.membership().is_symmetrical() {
+                return false;
+            } else {
+                centroid = center_label.membership().centroid();
+            }
+        } else {
+            centroid = (self.labels[center_pos].membership().centroid()
+                + self.labels[center_pos - 1].membership().centroid())
+                / 2.;
+        }
+
+        for pos in 0..center_pos {
+            if !self.labels[pos].membership().is_symmetrical_respect_center(
+                self.labels[cardinality - 1 - pos].membership(),
+                centroid,
+            ) {
+                return false;
+            }
+        }
+
+        true
+    }
 }
 
 /// Qualitative domain.

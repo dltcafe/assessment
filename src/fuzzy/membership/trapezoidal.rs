@@ -1,4 +1,5 @@
 use crate::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+use crate::utilities;
 use std::fmt::{Display, Formatter};
 
 use super::Membership;
@@ -246,6 +247,38 @@ impl Trapezoidal {
     /// ```
     pub fn is_symmetrical(&self) -> bool {
         ((self.b - self.a) - (self.d - self.c)).abs() < 0.00001
+    }
+
+    /// Checks if the membership is symmetrical respect `other` in the `center` point.
+    ///
+    /// # Arguments
+    /// * `other`: Trapezoidal to check if it is symmetrical respect `self`.
+    /// * `center`: Center point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// for (t, o, c, e) in [
+    ///     (vec![0.0, 0.1, 0.2, 0.3], vec![0.1, 0.2, 0.3, 0.4], 0.5, false),
+    ///     (vec![0.0, 0.1, 0.2, 0.3], vec![0.7, 0.8, 0.9, 1.0], 0.5, true),
+    ///     (vec![0.0, 0.1, 0.2, 0.3], vec![0.7, 0.8, 0.9, 1.0], 0.4, false),
+    ///     (vec![0.0, 0.1, 0.2, 0.3], vec![0.5, 0.6, 0.7, 0.8], 0.4, true),
+    ///     (vec![0.0, 0.1, 0.2], vec![0.8, 0.9, 1.0], 0.5, true),
+    ///     (vec![0.0, 0.0, 0.1], vec![0.9, 1.0, 1.0], 0.5, true),
+    ///     (vec![0.0, 0.5, 1.0], vec![0.0, 0.5, 1.0], 0.5, true),
+    /// ] {
+    ///     assert_eq!(Trapezoidal::new(t).unwrap().is_symmetrical_respect_center(&Trapezoidal::new(o).unwrap(), c), e);
+    /// }
+    /// ```
+    pub fn is_symmetrical_respect_center(&self, other: &Trapezoidal, center: f32) -> bool {
+        let r = 2. * center;
+        let potential =
+            Trapezoidal::new(vec![r - self.d, r - self.c, r - self.b, r - self.a]).unwrap();
+        utilities::math::approx_equal_f32(potential.a, other.a, 5)
+            && utilities::math::approx_equal_f32(potential.b, other.b, 5)
+            && utilities::math::approx_equal_f32(potential.c, other.c, 5)
+            && utilities::math::approx_equal_f32(potential.d, other.d, 5)
     }
 
     /// Returns membership value in point `x`.
