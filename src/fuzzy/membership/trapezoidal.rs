@@ -211,7 +211,7 @@ impl Trapezoidal {
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), 0.1),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), 0.1)
     /// ] {
-    ///     assert!(v.unwrap().centroid() - e < 0.00001);
+    ///     assert!((v.unwrap().centroid() - e).abs() < 0.00001);
     /// }
     /// ```
     pub fn centroid(&self) -> f32 {
@@ -228,6 +228,58 @@ impl Trapezoidal {
             + (centroid_center * area_center)
             + (centroid_right * area_right))
             / area_sum
+    }
+
+    /// Checks if the membership is symmetrical.
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// for (v, e) in [
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), true),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), true),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), true),
+    ///     (Trapezoidal::new(vec![0.0, 0.0, 0.1]), false),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.5]), false),
+    /// ] {
+    ///     assert_eq!(v.unwrap().is_symmetrical(), e);
+    /// }
+    /// ```
+    pub fn is_symmetrical(&self) -> bool {
+        ((self.b - self.a) - (self.d - self.c)).abs() < 0.00001
+    }
+
+    /// Returns membership value in point `x`.
+    ///
+    /// # Arguments
+    /// * `x`: Point in which check membership value.
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// let t = Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.5]).unwrap();
+    /// for (v, e) in [
+    ///     (-0.1, 0.0),
+    ///     (0.0, 0.0),
+    ///     (0.05, 0.5),
+    ///     (0.1, 1.0),
+    ///     (0.15, 1.0),
+    ///     (0.2, 1.0),
+    ///     (0.25, 0.83333333),
+    ///     (0.5, 0.0),
+    ///     (0.6, 0.0),
+    /// ] {
+    ///     assert!((t.membership_value(v) - e).abs() < 0.00001);
+    /// }
+    /// ```
+    pub fn membership_value(&self, x: f32) -> f32 {
+        if x <= self.a || x >= self.d {
+            0.
+        } else if x >= self.b && x <= self.c {
+            1.
+        } else if x < self.b {
+            (x - self.a) / (self.b - self.a)
+        } else {
+            (x - self.d) / (self.c - self.d)
+        }
     }
 }
 
