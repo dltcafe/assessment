@@ -294,7 +294,7 @@ macro_rules! trapezoidal_labels {
     };
 }
 
-/// Generates a PiecewiseLinearFunction from a trapezoidal label
+/// Generates a PiecewiseLinearFunction from a trapezoidal label.
 ///
 /// # Examples
 ///

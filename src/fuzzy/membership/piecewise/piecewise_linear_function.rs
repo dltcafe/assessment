@@ -5,17 +5,18 @@ use std::fmt::{Display, Formatter};
 
 use crate::domain::{Quantitative, QuantitativeError};
 use crate::fuzzy::membership::piecewise::LinearFunction;
+use crate::utilities;
 
 const DECIMALS: u32 = 5;
 const DECIMALS_POW: f64 = 10_u32.pow(DECIMALS) as f64;
 
-/// Piecewise linear function
+/// Piecewise linear function.
 #[derive(Debug, PartialEq, Clone)]
 pub struct PiecewiseLinearFunction {
     pieces: HashMap<Quantitative<i32>, LinearFunction>,
 }
 
-/// Piecewise linear function errors
+/// Piecewise linear function errors.
 #[derive(Debug, PartialEq)]
 pub enum PiecewiseLinearFunctionError {
     /// Invalid piece range
@@ -68,13 +69,6 @@ impl Display for PiecewiseLinearFunction {
 }
 
 impl PiecewiseLinearFunction {
-    fn approx_equal(a: f64, b: f64, decimal_places: u8) -> bool {
-        let factor = 10.0f64.powi(decimal_places as i32);
-        let a = (a * factor).trunc();
-        let b = (b * factor).trunc();
-        a == b
-    }
-
     fn key(inf: f64, sup: f64) -> Result<Quantitative<i32>, QuantitativeError<i32>> {
         Quantitative::new(
             f64::round(inf * DECIMALS_POW) as i32,
@@ -90,8 +84,8 @@ impl PiecewiseLinearFunction {
                 for (d_b, f_b) in &self.pieces {
                     if !to_remove.contains(d_a) && !to_remove.contains(d_b) {
                         if d_a.inf() == d_b.sup() || d_a.sup() == d_a.inf() {
-                            if PiecewiseLinearFunction::approx_equal(f_a.slope(), f_b.slope(), 3)
-                                && PiecewiseLinearFunction::approx_equal(
+                            if utilities::math::approx_equal_f64(f_a.slope(), f_b.slope(), 3)
+                                && utilities::math::approx_equal_f64(
                                     f_a.intercept(),
                                     f_b.intercept(),
                                     3,
@@ -129,7 +123,7 @@ impl PiecewiseLinearFunction {
         }
     }
 
-    /// Creates a new piecewise linear function
+    /// Creates a new piecewise linear function.
     ///
     /// # Examples
     ///
@@ -143,7 +137,7 @@ impl PiecewiseLinearFunction {
         }
     }
 
-    /// Add a linear function to the piecewise linear function
+    /// Add a linear function to the piecewise linear function.
     ///
     /// # Arguments
     /// * `domain`: Linear function domain.

@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 use crate::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
 use crate::fuzzy::membership::Trapezoidal;
 use crate::fuzzy::{label::get_labels_names, Label, LabelMembership};
+use crate::utilities;
 
 use super::Domain;
 
@@ -272,10 +273,28 @@ impl<T: LabelMembership> Qualitative<T> {
     pub fn get_labels_names(&self) -> Vec<&str> {
         get_labels_names(&self.labels)
     }
+
+    /// Checks if the domain is odd.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1.0], "b" => vec![0.0, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_odd(), e);
+    /// }
+    /// ```
+    pub fn is_odd(&self) -> bool {
+        self.cardinality() % 2 != 0
+    }
 }
 
 impl Qualitative<Trapezoidal> {
-    /// Checks if the domain is a fuzzy partition
+    /// Checks if the domain is a fuzzy partition.
     ///
     /// # Examples
     ///
@@ -286,16 +305,175 @@ impl Qualitative<Trapezoidal> {
     ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
     ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
     /// ] {
-    ///     assert_eq!(d.unwrap().fuzzy_partition(), e);
+    ///     assert_eq!(d.unwrap().is_fuzzy_partition(), e);
     /// }
     /// ```
-    pub fn fuzzy_partition(&self) -> bool {
+    pub fn is_fuzzy_partition(&self) -> bool {
         let mut fuzzy_partition = PiecewiseLinearFunction::new();
         fuzzy_partition
             .add(0.0, 1.0, LinearFunction::new(0.0, 1.0))
             .unwrap();
 
         PiecewiseLinearFunction::from(self) == fuzzy_partition
+    }
+
+    /// Checks if the domain is triangular.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 0.75, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_triangular(), e);
+    /// }
+    /// ```
+    pub fn is_triangular(&self) -> bool {
+        for l in &self.labels {
+            if !l.membership().is_triangular() {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Checks if the domain is **T**riangular, **O**dd and **R**uspini.
+    ///
+    /// Note that Ruspine eq. Fuzzy partition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 0.75, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.33], "b" => vec![0.0, 0.33, 0.66], "c" => vec![0.33, 0.66, 1.0], "d" => vec![0.66, 1.0, 1.0]], false)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_tor(), e);
+    /// }
+    /// ```
+    pub fn is_tor(&self) -> bool {
+        self.is_odd() && self.is_triangular() && self.is_fuzzy_partition()
+    }
+
+    /// Checks if the domain is symmetrical.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.5, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1.0/3.0, 2.0/3.0], "c" => vec![1.0/3.0, 2.0/3.0, 1.0], "d" => vec![2.0/3.0, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_symmetrical(), e);
+    /// }
+    /// ```
+    pub fn is_symmetrical(&self) -> bool {
+        let cardinality = self.cardinality();
+
+        if cardinality == 0 {
+            return true;
+        }
+
+        let center_pos = cardinality / 2;
+        let centroid;
+
+        if self.is_odd() {
+            let center_label = &self.labels[center_pos];
+            if !center_label.membership().is_symmetrical() {
+                return false;
+            } else {
+                centroid = center_label.membership().centroid();
+            }
+        } else {
+            centroid = (self.labels[center_pos].membership().centroid()
+                + self.labels[center_pos - 1].membership().centroid())
+                / 2.;
+        }
+
+        for pos in 0..center_pos {
+            if !self.labels[pos].membership().is_symmetrical_respect_center(
+                self.labels[cardinality - 1 - pos].membership(),
+                centroid,
+            ) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Checks if the domain is uniform.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![1./3., 2./3., 1.0], "d" => vec![2./3., 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_uniform(), e);
+    /// }
+    /// ```
+    pub fn is_uniform(&self) -> bool {
+        let cardinality = self.cardinality();
+        if cardinality <= 1 {
+            return true;
+        }
+
+        let compute_diff = |i: usize| {
+            let (a, b) = self.labels[i].membership().center();
+            let (c, d) = self.labels[i - 1].membership().center();
+            (a + b - c - d) / 2.
+        };
+
+        let diff = compute_diff(1);
+        for pos in 2..cardinality {
+            println!("{} {}", diff, compute_diff(pos));
+            if !utilities::math::approx_equal_f32(diff, compute_diff(pos), 5) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Checks if the domain is a **B**asic **L**inguistic **T**erm **S*+et.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![1./3., 2./3., 1.0], "d" => vec![2./3., 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0., 0., 1./4.], "b" => vec![0., 1./4., 2./4.], "c" => vec![1./4., 2./4., 3./4.], "d" => vec![2./4., 3./4., 1.], "e" => vec![3./4., 1., 1.]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_blts(), e);
+    /// }
+    /// ```
+    pub fn is_blts(&self) -> bool {
+        self.is_tor() && self.is_symmetrical() && self.is_uniform()
     }
 }
 
@@ -370,7 +548,7 @@ macro_rules! qualitative_domain {
     }
 }
 
-/// Generates a PiecewiseLinearFunction from a qualitative domain of Trapezoidal labels
+/// Generates a PiecewiseLinearFunction from a qualitative domain of Trapezoidal labels.
 ///
 /// # Examples
 ///

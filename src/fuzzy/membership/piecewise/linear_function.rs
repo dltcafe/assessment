@@ -1,12 +1,10 @@
+use crate::utilities;
 use impl_ops::*;
 use std::ops;
 
-const DECIMALS: u32 = 5;
-const DECIMALS_POW: f64 = 10_u32.pow(DECIMALS) as f64;
-
-/// Linear function struct
+/// Linear function struct.
 ///
-/// f(x) = ax + b; a == slope & b == intercept
+/// f(x) = ax + b; a == slope & b == intercept.
 #[derive(Debug, PartialEq, Clone)]
 pub struct LinearFunction {
     /// Slope.
@@ -30,18 +28,9 @@ impl LinearFunction {
     /// LinearFunction::new(2.3, 3.4);
     /// ```
     pub fn new(slope: f64, intercept: f64) -> Self {
-        let r = |v| {
-            let aux = f64::round(v * DECIMALS_POW) / DECIMALS_POW;
-            if aux.abs() <= 1.0 / DECIMALS_POW {
-                0.0
-            } else {
-                aux
-            }
-        };
-
         Self {
-            slope: r(slope),
-            intercept: r(intercept),
+            slope: utilities::math::round_f64(slope, 5),
+            intercept: utilities::math::round_f64(intercept, 5),
         }
     }
 
