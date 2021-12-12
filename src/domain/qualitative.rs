@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 use crate::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
 use crate::fuzzy::membership::Trapezoidal;
 use crate::fuzzy::{label::get_labels_names, Label, LabelMembership};
+use crate::utilities;
 
 use super::Domain;
 
@@ -413,6 +414,66 @@ impl Qualitative<Trapezoidal> {
         }
 
         true
+    }
+
+    /// Checks if the domain is uniform.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![1./3., 2./3., 1.0], "d" => vec![2./3., 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_uniform(), e);
+    /// }
+    /// ```
+    pub fn is_uniform(&self) -> bool {
+        let cardinality = self.cardinality();
+        if cardinality <= 1 {
+            return true;
+        }
+
+        let compute_diff = |i: usize| {
+            let (a, b) = self.labels[i].membership().center();
+            let (c, d) = self.labels[i - 1].membership().center();
+            (a + b - c - d) / 2.
+        };
+
+        let diff = compute_diff(1);
+        for pos in 2..cardinality {
+            println!("{} {}", diff, compute_diff(pos));
+            if !utilities::math::approx_equal_f32(diff, compute_diff(pos), 5) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Checks if the domain is a **B**asic **L**inguistic **T**erm **S*+et.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1./3.], "b" => vec![0.0, 1./3., 2./3.], "c" => vec![1./3., 2./3., 1.0], "d" => vec![2./3., 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0., 0., 1./4.], "b" => vec![0., 1./4., 2./4.], "c" => vec![1./4., 2./4., 3./4.], "d" => vec![2./4., 3./4., 1.], "e" => vec![3./4., 1., 1.]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_blts(), e);
+    /// }
+    /// ```
+    pub fn is_blts(&self) -> bool {
+        self.is_tor() && self.is_symmetrical() && self.is_uniform()
     }
 }
 
