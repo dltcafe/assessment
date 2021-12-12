@@ -1,3 +1,4 @@
+use crate::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
 use std::fmt::{Display, Formatter};
 
 use super::Membership;
@@ -143,6 +144,44 @@ impl Trapezoidal {
         }
     }
 
+    /// Returns center.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// for (v, e) in [
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), (0.1, 0.2)),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), (0.1, 0.1)),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), (0.1, 0.1))
+    /// ] {
+    ///     assert_eq!(v.unwrap().center(), e);
+    /// }
+    /// ```
+    ///
+    pub fn center(&self) -> (f32, f32) {
+        (self.b, self.c)
+    }
+
+    /// Returns coverage.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// for (v, e) in [
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), (0.0, 0.3)),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), (0.0, 0.2)),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), (0.0, 0.2))
+    /// ] {
+    ///     assert_eq!(v.unwrap().coverage(), e);
+    /// }
+    /// ```
+    ///
+    pub fn coverage(&self) -> (f32, f32) {
+        (self.a, self.d)
+    }
+
     /// Check if it is triangular (`b == c`).
     ///
     /// # Examples
@@ -159,5 +198,53 @@ impl Trapezoidal {
     /// ```
     pub fn is_triangular(&self) -> bool {
         self.b == self.c
+    }
+}
+
+/// Generates a PiecewiseLinearFunction from a trapezoidal membership
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::fuzzy::membership::Trapezoidal;
+/// # use assessment::fuzzy::membership::piecewise::PiecewiseLinearFunction;
+/// for (v, e) in [
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 0.00·x + 1.00); ([0.20, 0.30] => y = -10.00·x + 3.00)"),
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)"),
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)")
+/// ] {
+///     assert_eq!(format!("{}", PiecewiseLinearFunction::from(&v.unwrap())), e);
+/// }
+/// ```
+///
+impl From<&Trapezoidal> for PiecewiseLinearFunction {
+    fn from(t: &Trapezoidal) -> Self {
+        let mut result = PiecewiseLinearFunction::new();
+        let (a, d) = t.coverage();
+        let (b, c) = t.center();
+
+        let extremes = |f_0, f_1, plf: &mut PiecewiseLinearFunction| {
+            if f_0 != f_1 {
+                let slope = 1.0 / (f_1 - f_0);
+                let intercept = -1.0 * slope * f_0;
+                plf.add(
+                    if f_0 < f_1 { f_0 } else { f_1 },
+                    if f_0 < f_1 { f_1 } else { f_0 },
+                    LinearFunction::new(slope as f64, intercept as f64),
+                )
+                .unwrap();
+            }
+        };
+
+        extremes(a as f64, b as f64, &mut result);
+        extremes(d as f64, c as f64, &mut result);
+
+        if b != c {
+            result
+                .add(b as f64, c as f64, LinearFunction::new(0.0, 1.0))
+                .unwrap();
+        }
+
+        result
     }
 }

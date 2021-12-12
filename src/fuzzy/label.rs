@@ -1,3 +1,4 @@
+use crate::fuzzy::membership::piecewise::PiecewiseLinearFunction;
 use crate::fuzzy::membership::Membership;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -252,22 +253,21 @@ use crate::fuzzy::membership::Trapezoidal;
 ///     ].is_err()
 /// );
 /// ```
+///
+///
 #[macro_export]
 macro_rules! trapezoidal_labels {
     ( $( $name:expr => $membership:expr ),* ) => {
         {
-            use assessment::fuzzy::label::Label;
-            use assessment::fuzzy::membership::Trapezoidal;
-
-            let mut labels = Vec::<Label<Trapezoidal>>::new();
+            let mut labels = Vec::<$crate::fuzzy::Label<$crate::fuzzy::membership::Trapezoidal>>::new();
             let mut abort = false;
             let mut error = String::new();
             $(
                 match abort {
                     false => {
-                        match Trapezoidal::new($membership) {
+                        match $crate::fuzzy::membership::Trapezoidal::new($membership) {
                             Ok(t) => {
-                                match Label::new($name.to_string(), t) {
+                                match $crate::fuzzy::Label::new($name.to_string(), t) {
                                     Ok(l) => labels.push(l),
                                     Err(e) => {
                                         error = format!("{}", e);
@@ -292,4 +292,27 @@ macro_rules! trapezoidal_labels {
             }
         }
     };
+}
+
+/// Generates a PiecewiseLinearFunction from a trapezoidal label
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::trapezoidal_labels;
+/// # use assessment::fuzzy::membership::piecewise::PiecewiseLinearFunction;
+/// let labels = trapezoidal_labels![
+///     "a" => vec![0.0, 0.1, 0.2, 0.3],
+///     "b" => vec![0.0, 0.1, 0.1, 0.2],
+///     "c" => vec![0.0, 0.1, 0.2]
+/// ].unwrap();
+///
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&labels[0])), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 0.00·x + 1.00); ([0.20, 0.30] => y = -10.00·x + 3.00)");
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&labels[1])), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)");
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&labels[2])), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)");
+/// ```
+impl From<&Label<Trapezoidal>> for PiecewiseLinearFunction {
+    fn from(l: &Label<Trapezoidal>) -> Self {
+        PiecewiseLinearFunction::from(&l.membership)
+    }
 }
