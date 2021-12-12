@@ -273,7 +273,7 @@ impl<T: LabelMembership> Qualitative<T> {
         get_labels_names(&self.labels)
     }
 
-    /// Checks if the domain is odd
+    /// Checks if the domain is odd.
     ///
     /// # Examples
     ///
@@ -293,7 +293,7 @@ impl<T: LabelMembership> Qualitative<T> {
 }
 
 impl Qualitative<Trapezoidal> {
-    /// Checks if the domain is a fuzzy partition
+    /// Checks if the domain is a fuzzy partition.
     ///
     /// # Examples
     ///
@@ -316,7 +316,7 @@ impl Qualitative<Trapezoidal> {
         PiecewiseLinearFunction::from(self) == fuzzy_partition
     }
 
-    /// Checks if the domain is triangular
+    /// Checks if the domain is triangular.
     ///
     /// # Examples
     ///
@@ -341,9 +341,9 @@ impl Qualitative<Trapezoidal> {
         true
     }
 
-    /// Checks if the domain is **T**riangular, **O**dd and **Ruspini**
+    /// Checks if the domain is **T**riangular, **O**dd and **R**uspini.
     ///
-    /// Note that Ruspine eq. Fuzzy partition
+    /// Note that Ruspine eq. Fuzzy partition.
     ///
     /// # Examples
     ///
@@ -435,7 +435,7 @@ macro_rules! qualitative_domain {
     }
 }
 
-/// Generates a PiecewiseLinearFunction from a qualitative domain of Trapezoidal labels
+/// Generates a PiecewiseLinearFunction from a qualitative domain of Trapezoidal labels.
 ///
 /// # Examples
 ///

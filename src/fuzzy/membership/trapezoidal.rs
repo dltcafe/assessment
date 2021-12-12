@@ -201,7 +201,7 @@ impl Trapezoidal {
     }
 }
 
-/// Generates a PiecewiseLinearFunction from a trapezoidal membership
+/// Generates a PiecewiseLinearFunction from a trapezoidal membership.
 ///
 /// # Examples
 ///

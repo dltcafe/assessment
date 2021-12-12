@@ -9,16 +9,16 @@ use crate::fuzzy::membership::piecewise::LinearFunction;
 const DECIMALS: u32 = 5;
 const DECIMALS_POW: f64 = 10_u32.pow(DECIMALS) as f64;
 
-/// Piecewise linear function
+/// Piecewise linear function.
 #[derive(Debug, PartialEq, Clone)]
 pub struct PiecewiseLinearFunction {
     pieces: HashMap<Quantitative<i32>, LinearFunction>,
 }
 
-/// Piecewise linear function errors
+/// Piecewise linear function errors.
 #[derive(Debug, PartialEq)]
 pub enum PiecewiseLinearFunctionError {
-    /// Invalid piece range
+    /// Invalid piece range.
     InvalidPieceRange { inf: f64, sup: f64 },
 }
 
@@ -129,7 +129,7 @@ impl PiecewiseLinearFunction {
         }
     }
 
-    /// Creates a new piecewise linear function
+    /// Creates a new piecewise linear function.
     ///
     /// # Examples
     ///
@@ -143,7 +143,7 @@ impl PiecewiseLinearFunction {
         }
     }
 
-    /// Add a linear function to the piecewise linear function
+    /// Add a linear function to the piecewise linear function.
     ///
     /// # Arguments
     /// * `domain`: Linear function domain.
