@@ -272,6 +272,24 @@ impl<T: LabelMembership> Qualitative<T> {
     pub fn get_labels_names(&self) -> Vec<&str> {
         get_labels_names(&self.labels)
     }
+
+    /// Checks if the domain is odd
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1.0], "b" => vec![0.0, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_odd(), e);
+    /// }
+    /// ```
+    pub fn is_odd(&self) -> bool {
+        self.cardinality() % 2 != 0
+    }
 }
 
 impl Qualitative<Trapezoidal> {
@@ -286,16 +304,63 @@ impl Qualitative<Trapezoidal> {
     ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
     ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
     /// ] {
-    ///     assert_eq!(d.unwrap().fuzzy_partition(), e);
+    ///     assert_eq!(d.unwrap().is_fuzzy_partition(), e);
     /// }
     /// ```
-    pub fn fuzzy_partition(&self) -> bool {
+    pub fn is_fuzzy_partition(&self) -> bool {
         let mut fuzzy_partition = PiecewiseLinearFunction::new();
         fuzzy_partition
             .add(0.0, 1.0, LinearFunction::new(0.0, 1.0))
             .unwrap();
 
         PiecewiseLinearFunction::from(self) == fuzzy_partition
+    }
+
+    /// Checks if the domain is triangular
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 0.75, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_triangular(), e);
+    /// }
+    /// ```
+    pub fn is_triangular(&self) -> bool {
+        for l in &self.labels {
+            if !l.membership().is_triangular() {
+                return false
+            }
+        }
+
+        true
+    }
+
+    /// Checks if the domain is **T**riangular, **O**dd and **Ruspini**
+    ///
+    /// Note that Ruspine eq. Fuzzy partition
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.25, 0.75, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 0.75, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.33], "b" => vec![0.0, 0.33, 0.66], "c" => vec![0.33, 0.66, 1.0], "d" => vec![0.66, 1.0, 1.0]], false)
+    /// ] {
+    ///     assert_eq!(d.unwrap().is_tor(), e);
+    /// }
+    /// ```
+    pub fn is_tor(&self) -> bool {
+        self.is_odd() && self.is_triangular() && self.is_fuzzy_partition()
     }
 }
 
