@@ -5,7 +5,7 @@ use std::fmt::{Debug, Display, Formatter};
 pub trait QuantitativeLimit = Copy + Display + Debug + PartialOrd;
 
 /// Quantitative domain.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash, Eq, Clone)]
 pub struct Quantitative<T: QuantitativeLimit> {
     inf: T,
     sup: T,
@@ -127,5 +127,97 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// ```
     pub fn valid_assessment(&self, value: T) -> bool {
         value >= self.inf && value <= self.sup
+    }
+
+    /// Computes intersection with other interval.
+    ///
+    /// # Arguments
+    /// * `other`: Interval with which compute the intersection.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0.0, 1.0).unwrap();
+    ///
+    /// for (inf, sup, expected) in [
+    ///     (0.0, 1.0, Some(Quantitative::new(0.0, 1.0).unwrap())),
+    ///     (0.5, 1.0, Some(Quantitative::new(0.5, 1.0).unwrap())),
+    ///     (1.0, 1.5, None),
+    ///     (-1.0, 0.0, None),
+    ///     (-1.0, 0.5, Some(Quantitative::new(0.0, 0.5).unwrap())),
+    ///     (-1.0, 2.0, Some(Quantitative::new(0.0, 1.0).unwrap())),
+    ///     (0.25, 0.75, Some(Quantitative::new(0.25, 0.75).unwrap()))
+    /// ] {
+    ///     let other = Quantitative::new(inf, sup).unwrap();
+    ///     assert_eq!(domain.intersection(&other), expected);
+    /// }
+    /// ```
+    pub fn intersection(&self, other: &Self) -> Option<Self> {
+        if self.inf >= other.inf {
+            if self.sup <= other.sup {
+                Some(self.clone())
+            } else if self.inf < other.sup {
+                Some(Quantitative::new(self.inf, other.sup).unwrap())
+            } else {
+                None
+            }
+        } else if self.sup > other.inf {
+            if self.sup >= other.sup {
+                Some(other.clone())
+            } else {
+                Some(Quantitative::new(other.inf, self.sup).unwrap())
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Computes intersection with other interval.
+    ///
+    /// # Arguments
+    /// * `other`: Interval with which compute the intersection.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0.0, 1.0).unwrap();
+    ///
+    /// for (inf, sup, expected) in [
+    ///     (0.0, 1.0, vec![]),
+    ///     (0.5, 1.0, vec![Quantitative::new(0.0, 0.5).unwrap()]),
+    ///     (1.0, 1.5, vec![Quantitative::new(0.0, 1.0).unwrap()]),
+    ///     (-1.0, 0.0, vec![Quantitative::new(0.0, 1.0).unwrap()]),
+    ///     (-1.0, 0.5, vec![Quantitative::new(0.5, 1.0).unwrap()]),
+    ///     (-1.0, 2.0, vec![]),
+    ///     (0.25, 0.75, vec![Quantitative::new(0.0, 0.25).unwrap(), Quantitative::new(0.75, 1.0).unwrap()])
+    /// ] {
+    ///     let other = Quantitative::new(inf, sup).unwrap();
+    ///     assert_eq!(domain.difference(&other), expected);
+    /// }
+    /// ```
+    pub fn difference(&self, other: &Self) -> Vec<Self> {
+        let mut result = Vec::new();
+        if self.inf >= other.inf {
+            if self.inf >= other.sup {
+                result.push(self.clone());
+            } else if self.sup > other.sup {
+                result.push(Quantitative::new(other.sup, self.sup).unwrap());
+            }
+        } else if self.sup > other.inf {
+            if self.sup >= other.sup {
+                result.push(Quantitative::new(self.inf, other.inf).unwrap());
+                if self.sup > other.sup {
+                    result.push(Quantitative::new(other.sup, self.sup).unwrap());
+                }
+            } else {
+                Some(Quantitative::new(self.inf, other.sup).unwrap());
+            }
+        } else {
+            result.push(self.clone());
+        }
+
+        result
     }
 }

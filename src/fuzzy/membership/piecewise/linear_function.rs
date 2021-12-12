@@ -7,12 +7,13 @@ const DECIMALS_POW: f64 = 10_u32.pow(DECIMALS) as f64;
 /// Linear function struct
 ///
 /// f(x) = ax + b; a == slope & b == intercept
+#[derive(Debug, PartialEq, Clone)]
 pub struct LinearFunction {
     /// Slope.
     slope: f64,
 
     /// Intercept.
-    intercept: f64
+    intercept: f64,
 }
 
 impl LinearFunction {
@@ -31,7 +32,7 @@ impl LinearFunction {
     pub fn new(slope: f64, intercept: f64) -> Self {
         Self {
             slope: f64::round(slope * DECIMALS_POW) / DECIMALS_POW,
-            intercept: f64::round(intercept * DECIMALS_POW) / DECIMALS_POW
+            intercept: f64::round(intercept * DECIMALS_POW) / DECIMALS_POW,
         }
     }
 
