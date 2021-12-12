@@ -334,7 +334,7 @@ impl Qualitative<Trapezoidal> {
     pub fn is_triangular(&self) -> bool {
         for l in &self.labels {
             if !l.membership().is_triangular() {
-                return false
+                return false;
             }
         }
 

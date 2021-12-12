@@ -199,6 +199,36 @@ impl Trapezoidal {
     pub fn is_triangular(&self) -> bool {
         self.b == self.c
     }
+
+    /// Returns centroid.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// for (v, e) in [
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), 0.15),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), 0.1),
+    ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), 0.1)
+    /// ] {
+    ///     assert!(v.unwrap().centroid() - e < 0.00001);
+    /// }
+    /// ```
+    pub fn centroid(&self) -> f32 {
+        let centroid_left = (self.a + (2. * self.b)) / 3.;
+        let centroid_center = (self.b + self.c) / 2.;
+        let centroid_right = ((2. * self.c) + self.d) / 3.;
+
+        let area_left = (self.b - self.a) / 2.;
+        let area_center = self.c - self.b;
+        let area_right = (self.d - self.c) / 2.;
+        let area_sum = area_left + area_center + area_right;
+
+        ((centroid_left * area_left)
+            + (centroid_center * area_center)
+            + (centroid_right * area_right))
+            / area_sum
+    }
 }
 
 /// Generates a PiecewiseLinearFunction from a trapezoidal membership.

@@ -18,7 +18,7 @@ pub struct PiecewiseLinearFunction {
 /// Piecewise linear function errors.
 #[derive(Debug, PartialEq)]
 pub enum PiecewiseLinearFunctionError {
-    /// Invalid piece range.
+    /// Invalid piece range
     InvalidPieceRange { inf: f64, sup: f64 },
 }
 
