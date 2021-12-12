@@ -10,7 +10,7 @@ const DECIMALS: u32 = 5;
 const DECIMALS_POW: f64 = 10_u32.pow(DECIMALS) as f64;
 
 /// Piecewise linear function
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct PiecewiseLinearFunction {
     pieces: HashMap<Quantitative<i32>, LinearFunction>,
 }
@@ -60,14 +60,14 @@ impl Display for PiecewiseLinearFunction {
     }
 }
 
-fn approx_equal(a: f64, b: f64, decimal_places: u8) -> bool {
-    let factor = 10.0f64.powi(decimal_places as i32);
-    let a = (a * factor).trunc();
-    let b = (b * factor).trunc();
-    a == b
-}
-
 impl PiecewiseLinearFunction {
+    fn approx_equal(a: f64, b: f64, decimal_places: u8) -> bool {
+        let factor = 10.0f64.powi(decimal_places as i32);
+        let a = (a * factor).trunc();
+        let b = (b * factor).trunc();
+        a == b
+    }
+
     fn key(inf: f64, sup: f64) -> Result<Quantitative<i32>, QuantitativeError<i32>> {
         Quantitative::new(
             f64::round(inf * DECIMALS_POW) as i32,
@@ -83,8 +83,12 @@ impl PiecewiseLinearFunction {
                 for (d_b, f_b) in &self.pieces {
                     if !to_remove.contains(d_a) && !to_remove.contains(d_b) {
                         if d_a.inf() == d_b.sup() || d_a.sup() == d_a.inf() {
-                            if approx_equal(f_a.slope(), f_b.slope(), 3)
-                                && approx_equal(f_a.intercept(), f_b.intercept(), 3)
+                            if PiecewiseLinearFunction::approx_equal(f_a.slope(), f_b.slope(), 3)
+                                && PiecewiseLinearFunction::approx_equal(
+                                    f_a.intercept(),
+                                    f_b.intercept(),
+                                    3,
+                                )
                             {
                                 to_remove.insert(d_a.clone());
                                 to_remove.insert(d_b.clone());
@@ -237,6 +241,80 @@ impl PiecewiseLinearFunction {
             }
             Err(_) => Err(PiecewiseLinearFunctionError::InvalidPieceRange { inf, sup }),
         }
+    }
+
+    /// Merge two piecewise linear functions.
+    ///
+    /// # Arguments
+    /// * `other`: Piecewise linear function to merge with self.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// # use assessment::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+    /// let mut a = PiecewiseLinearFunction::new();
+    /// let mut b = PiecewiseLinearFunction::new();
+    /// assert_eq!(a.merge(&b), b.merge(&a));
+    /// assert_eq!(format!("{}", a.merge(&b)), "");
+    /// ```
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// # use assessment::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+    /// let mut a = PiecewiseLinearFunction::new();
+    /// a.add(0.0, 0.2, LinearFunction::new(3.0, 2.7));
+    /// let mut b = PiecewiseLinearFunction::new();
+    /// assert_eq!(a.merge(&b), b.merge(&a));
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.0·x + 2.7)");
+    /// ```
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// # use assessment::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+    /// let mut a = PiecewiseLinearFunction::new();
+    /// let mut b = PiecewiseLinearFunction::new();
+    /// b.add(0.3, 0.4, LinearFunction::new(2.7, 3.8));
+    /// assert_eq!(a.merge(&b), b.merge(&a));
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.30, 0.40] => y = 2.7·x + 3.8)");
+    /// ```
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// # use assessment::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+    /// let mut a = PiecewiseLinearFunction::new();
+    /// a.add(0.0, 0.2, LinearFunction::new(3.0, 2.7));
+    /// let mut b = PiecewiseLinearFunction::new();
+    /// b.add(0.3, 0.4, LinearFunction::new(2.7, 3.8));
+    /// assert_eq!(a.merge(&b), b.merge(&a));
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.0·x + 2.7); ([0.30, 0.40] => y = 2.7·x + 3.8)");
+    /// ```
+    ///
+    /// ```
+    /// # use assessment::domain::Quantitative;
+    /// # use assessment::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+    /// let mut a = PiecewiseLinearFunction::new();
+    /// a.add(0.0, 0.2, LinearFunction::new(1.3, 2.3));
+    /// a.add(-0.5, 0.5, LinearFunction::new(1.0, 2.0));
+    /// let mut b = PiecewiseLinearFunction::new();
+    /// b.add(0.1, 0.4, LinearFunction::new(2.4, 3.3));
+    /// b.add(-0.1, 0.15, LinearFunction::new(1.0, 2.0));
+    /// assert_eq!(a.merge(&b), b.merge(&a));
+    /// assert_eq!(format!("{}", a.merge(&b)), "([-0.50, -0.10] => y = 1.0·x + 2.0); ([-0.10, 0.00] => y = 2.0·x + 4.0); ([0.00, 0.10] => y = 3.3·x + 6.3); ([0.10, 0.15] => y = 5.7·x + 9.6); ([0.15, 0.20] => y = 4.7·x + 7.6); ([0.20, 0.40] => y = 3.4·x + 5.3); ([0.40, 0.50] => y = 1.0·x + 2.0)");
+    /// ```
+    ///
+    pub fn merge(&self, other: &Self) -> Self {
+        let mut result = (*self).clone();
+        for (domain, piece) in &other.pieces {
+            result
+                .add(
+                    domain.inf() as f64 / DECIMALS_POW,
+                    domain.sup() as f64 / DECIMALS_POW,
+                    (*piece).clone(),
+                )
+                .unwrap();
+        }
+        result
     }
 
     /// Returns keys.

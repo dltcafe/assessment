@@ -187,6 +187,7 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// for (inf, sup, expected) in [
     ///     (0.0, 1.0, vec![]),
     ///     (0.5, 1.0, vec![Quantitative::new(0.0, 0.5).unwrap()]),
+    ///     (0.5, 1.5, vec![Quantitative::new(0.0, 0.5).unwrap()]),
     ///     (1.0, 1.5, vec![Quantitative::new(0.0, 1.0).unwrap()]),
     ///     (-1.0, 0.0, vec![Quantitative::new(0.0, 1.0).unwrap()]),
     ///     (-1.0, 0.5, vec![Quantitative::new(0.5, 1.0).unwrap()]),
@@ -212,7 +213,7 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
                     result.push(Quantitative::new(other.sup, self.sup).unwrap());
                 }
             } else {
-                Some(Quantitative::new(self.inf, other.sup).unwrap());
+                result.push(Quantitative::new(self.inf, other.inf).unwrap());
             }
         } else {
             result.push(self.clone());
