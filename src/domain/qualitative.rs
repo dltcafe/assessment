@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
+use crate::fuzzy::membership::piecewise::{LinearFunction, PiecewiseLinearFunction};
+use crate::fuzzy::membership::Trapezoidal;
 use crate::fuzzy::{label::get_labels_names, Label, LabelMembership};
 
 use super::Domain;
@@ -272,8 +274,31 @@ impl<T: LabelMembership> Qualitative<T> {
     }
 }
 
-#[allow(unused_imports)]
-use crate::fuzzy::membership::Trapezoidal;
+impl Qualitative<Trapezoidal> {
+    /// Checks if the domain is a fuzzy partition
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// for (d, e) in [
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 1.0], "b" => vec![0.0, 1.0, 1.0]], true),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.5, 1.0, 1.0]], false),
+    ///     (qualitative_domain!["a" => vec![0.0, 0.0, 0.5], "b" => vec![0.0, 0.5, 1.0], "c" => vec![0.5, 1.0, 1.0]], true)
+    /// ] {
+    ///     assert_eq!(d.unwrap().fuzzy_partition(), e);
+    /// }
+    /// ```
+    pub fn fuzzy_partition(&self) -> bool {
+        let mut fuzzy_partition = PiecewiseLinearFunction::new();
+        fuzzy_partition
+            .add(0.0, 1.0, LinearFunction::new(0.0, 1.0))
+            .unwrap();
+
+        PiecewiseLinearFunction::from(self) == fuzzy_partition
+    }
+}
+
 /// Qualitative domain.
 ///
 /// Generates a qualitative domain. Note it is a wrapper of trapezoidal_labels macro.
@@ -332,11 +357,9 @@ use crate::fuzzy::membership::Trapezoidal;
 macro_rules! qualitative_domain {
     ( $( $name:expr => $membership:expr ),* ) => {
         {
-            use assessment::trapezoidal_labels;
-            use assessment::domain::Qualitative;
-            match trapezoidal_labels![$( $name => $membership ),*] {
+            match $crate::trapezoidal_labels![$( $name => $membership ),*] {
                 Ok(labels) => {
-                    match Qualitative::new(labels) {
+                    match $crate::domain::Qualitative::new(labels) {
                         Ok(domain) => Ok(domain),
                         Err(e) => Err(format!("{}", e)),
                     }
@@ -344,5 +367,42 @@ macro_rules! qualitative_domain {
                 Err(e) => Err(format!("{}", e))
             }
         }
+    }
+}
+
+/// Generates a PiecewiseLinearFunction from a qualitative domain of Trapezoidal labels
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::fuzzy::membership::piecewise::PiecewiseLinearFunction;
+/// # use assessment::qualitative_domain;
+/// let domain_a = qualitative_domain![
+///     "a" => vec![0.0, 0.0, 1.0],
+///     "b" => vec![0.0, 1.0, 1.0]
+/// ].unwrap();
+/// let domain_b = qualitative_domain![
+///     "a" => vec![0.0, 0.0, 0.5],
+///     "b" => vec![0.5, 1.0, 1.0]
+/// ].unwrap();
+/// let domain_c = qualitative_domain![
+///     "a" => vec![0.0, 0.0, 0.5],
+///     "b" => vec![0.0, 0.5, 1.0],
+///     "c" => vec![0.5, 1.0, 1.0]
+/// ].unwrap();
+///
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&domain_a)), "([0.00, 1.00] => y = 0.00·x + 1.00)");
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&domain_b)), "([0.00, 0.50] => y = -2.00·x + 1.00); ([0.50, 1.00] => y = 2.00·x - 1.00)");
+/// assert_eq!(format!("{}", PiecewiseLinearFunction::from(&domain_c)), "([0.00, 1.00] => y = 0.00·x + 1.00)");
+/// ```
+impl From<&Qualitative<Trapezoidal>> for PiecewiseLinearFunction {
+    fn from(domain: &Qualitative<Trapezoidal>) -> Self {
+        let mut result = PiecewiseLinearFunction::new();
+        domain
+            .labels
+            .iter()
+            .map(|label| PiecewiseLinearFunction::from(label))
+            .for_each(|function| result = result.merge(&function));
+        result
     }
 }

@@ -154,7 +154,9 @@ impl<T: QuantitativeLimit + Copy> Quantitative<T> {
     /// }
     /// ```
     pub fn intersection(&self, other: &Self) -> Option<Self> {
-        if self.inf >= other.inf {
+        if self.inf == self.sup || other.inf == other.sup {
+            None
+        } else if self.inf >= other.inf {
             if self.sup <= other.sup {
                 Some(self.clone())
             } else if self.inf < other.sup {

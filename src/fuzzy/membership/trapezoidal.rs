@@ -201,7 +201,7 @@ impl Trapezoidal {
     }
 }
 
-/// Generates a PiecewiseLinearFunction for a trapezoidal membership
+/// Generates a PiecewiseLinearFunction from a trapezoidal membership
 ///
 /// # Examples
 ///
@@ -209,9 +209,9 @@ impl Trapezoidal {
 /// # use assessment::fuzzy::membership::Trapezoidal;
 /// # use assessment::fuzzy::membership::piecewise::PiecewiseLinearFunction;
 /// for (v, e) in [
-///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 0.00·x + 1.00); ([0.20, 0.30] => y = 10.00·x - 2.00)"),
-///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 10.00·x - 1.00)"),
-///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 10.00·x - 1.00)")
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.3]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = 0.00·x + 1.00); ([0.20, 0.30] => y = -10.00·x + 3.00)"),
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)"),
+///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), "([0.00, 0.10] => y = 10.00·x + 0.00); ([0.10, 0.20] => y = -10.00·x + 2.00)")
 /// ] {
 ///     assert_eq!(format!("{}", PiecewiseLinearFunction::from(&v.unwrap())), e);
 /// }
@@ -223,15 +223,21 @@ impl From<&Trapezoidal> for PiecewiseLinearFunction {
         let (a, d) = t.coverage();
         let (b, c) = t.center();
 
-        let extremes = |inf, sup, plf: &mut PiecewiseLinearFunction| {
-            let slope = 1.0 / (sup - inf);
-            let intercept = -1.0 * slope * inf;
-            plf.add(inf, sup, LinearFunction::new(slope, intercept))
+        let extremes = |f_0, f_1, plf: &mut PiecewiseLinearFunction| {
+            if f_0 != f_1 {
+                let slope = 1.0 / (f_1 - f_0);
+                let intercept = -1.0 * slope * f_0;
+                plf.add(
+                    if f_0 < f_1 { f_0 } else { f_1 },
+                    if f_0 < f_1 { f_1 } else { f_0 },
+                    LinearFunction::new(slope as f64, intercept as f64),
+                )
                 .unwrap();
+            }
         };
 
         extremes(a as f64, b as f64, &mut result);
-        extremes(c as f64, d as f64, &mut result);
+        extremes(d as f64, c as f64, &mut result);
 
         if b != c {
             result
