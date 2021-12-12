@@ -53,7 +53,14 @@ impl Display for PiecewiseLinearFunction {
             f,
             "{}",
             aux.iter()
-                .map(|(a, b, c, d)| format!("([{:.2}, {:.2}] => y = {:.1}·x + {:.1})", a, b, c, d))
+                .map(|(a, b, c, d)| format!(
+                    "([{:.2}, {:.2}] => y = {:.2}·x {} {:.2})",
+                    a,
+                    b,
+                    c,
+                    if *d < 0.0 { '-' } else { '+' },
+                    d.abs()
+                ))
                 .collect::<Vec<String>>()
                 .join("; ")
         )
@@ -150,7 +157,7 @@ impl PiecewiseLinearFunction {
     ///
     /// let piece = LinearFunction::new(3.0, 2.7);
     /// assert!(plf.add(0.0, 1.0, piece).is_ok());
-    /// assert_eq!(format!("{}", plf), "([0.00, 1.00] => y = 3.0·x + 2.7)");
+    /// assert_eq!(format!("{}", plf), "([0.00, 1.00] => y = 3.00·x + 2.70)");
     /// ```
     ///
     /// ```
@@ -160,7 +167,7 @@ impl PiecewiseLinearFunction {
     ///
     /// plf.add(0.0, 0.2, LinearFunction::new(3.0, 2.7));
     /// plf.add(0.3, 0.4, LinearFunction::new(2.7, 3.8));
-    /// assert_eq!(format!("{}", plf), "([0.00, 0.20] => y = 3.0·x + 2.7); ([0.30, 0.40] => y = 2.7·x + 3.8)");
+    /// assert_eq!(format!("{}", plf), "([0.00, 0.20] => y = 3.00·x + 2.70); ([0.30, 0.40] => y = 2.70·x + 3.80)");
     /// ```
     ///
     /// ```
@@ -170,7 +177,7 @@ impl PiecewiseLinearFunction {
     ///
     /// plf.add(0.0, 0.2, LinearFunction::new(1.3, 2.3));
     /// plf.add(0.1, 0.4, LinearFunction::new(2.4, 3.3));
-    /// assert_eq!(format!("{}", plf), "([0.00, 0.10] => y = 1.3·x + 2.3); ([0.10, 0.20] => y = 3.7·x + 5.6); ([0.20, 0.40] => y = 2.4·x + 3.3)");
+    /// assert_eq!(format!("{}", plf), "([0.00, 0.10] => y = 1.30·x + 2.30); ([0.10, 0.20] => y = 3.70·x + 5.60); ([0.20, 0.40] => y = 2.40·x + 3.30)");
     /// ```
     ///
     /// ```
@@ -182,7 +189,7 @@ impl PiecewiseLinearFunction {
     /// plf.add(0.1, 0.4, LinearFunction::new(2.4, 3.3));
     /// plf.add(-0.5, 0.5, LinearFunction::new(1.0, 2.0));
     /// plf.add(-0.1, 0.15, LinearFunction::new(1.0, 2.0));
-    /// assert_eq!(format!("{}", plf), "([-0.50, -0.10] => y = 1.0·x + 2.0); ([-0.10, 0.00] => y = 2.0·x + 4.0); ([0.00, 0.10] => y = 3.3·x + 6.3); ([0.10, 0.15] => y = 5.7·x + 9.6); ([0.15, 0.20] => y = 4.7·x + 7.6); ([0.20, 0.40] => y = 3.4·x + 5.3); ([0.40, 0.50] => y = 1.0·x + 2.0)");
+    /// assert_eq!(format!("{}", plf), "([-0.50, -0.10] => y = 1.00·x + 2.00); ([-0.10, 0.00] => y = 2.00·x + 4.00); ([0.00, 0.10] => y = 3.30·x + 6.30); ([0.10, 0.15] => y = 5.70·x + 9.60); ([0.15, 0.20] => y = 4.70·x + 7.60); ([0.20, 0.40] => y = 3.40·x + 5.30); ([0.40, 0.50] => y = 1.00·x + 2.00)");
     /// ```
     ///
     /// # Errors
@@ -266,7 +273,7 @@ impl PiecewiseLinearFunction {
     /// a.add(0.0, 0.2, LinearFunction::new(3.0, 2.7));
     /// let mut b = PiecewiseLinearFunction::new();
     /// assert_eq!(a.merge(&b), b.merge(&a));
-    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.0·x + 2.7)");
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.00·x + 2.70)");
     /// ```
     ///
     /// ```
@@ -276,7 +283,7 @@ impl PiecewiseLinearFunction {
     /// let mut b = PiecewiseLinearFunction::new();
     /// b.add(0.3, 0.4, LinearFunction::new(2.7, 3.8));
     /// assert_eq!(a.merge(&b), b.merge(&a));
-    /// assert_eq!(format!("{}", a.merge(&b)), "([0.30, 0.40] => y = 2.7·x + 3.8)");
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.30, 0.40] => y = 2.70·x + 3.80)");
     /// ```
     ///
     /// ```
@@ -287,7 +294,7 @@ impl PiecewiseLinearFunction {
     /// let mut b = PiecewiseLinearFunction::new();
     /// b.add(0.3, 0.4, LinearFunction::new(2.7, 3.8));
     /// assert_eq!(a.merge(&b), b.merge(&a));
-    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.0·x + 2.7); ([0.30, 0.40] => y = 2.7·x + 3.8)");
+    /// assert_eq!(format!("{}", a.merge(&b)), "([0.00, 0.20] => y = 3.00·x + 2.70); ([0.30, 0.40] => y = 2.70·x + 3.80)");
     /// ```
     ///
     /// ```
@@ -300,7 +307,7 @@ impl PiecewiseLinearFunction {
     /// b.add(0.1, 0.4, LinearFunction::new(2.4, 3.3));
     /// b.add(-0.1, 0.15, LinearFunction::new(1.0, 2.0));
     /// assert_eq!(a.merge(&b), b.merge(&a));
-    /// assert_eq!(format!("{}", a.merge(&b)), "([-0.50, -0.10] => y = 1.0·x + 2.0); ([-0.10, 0.00] => y = 2.0·x + 4.0); ([0.00, 0.10] => y = 3.3·x + 6.3); ([0.10, 0.15] => y = 5.7·x + 9.6); ([0.15, 0.20] => y = 4.7·x + 7.6); ([0.20, 0.40] => y = 3.4·x + 5.3); ([0.40, 0.50] => y = 1.0·x + 2.0)");
+    /// assert_eq!(format!("{}", a.merge(&b)), "([-0.50, -0.10] => y = 1.00·x + 2.00); ([-0.10, 0.00] => y = 2.00·x + 4.00); ([0.00, 0.10] => y = 3.30·x + 6.30); ([0.10, 0.15] => y = 5.70·x + 9.60); ([0.15, 0.20] => y = 4.70·x + 7.60); ([0.20, 0.40] => y = 3.40·x + 5.30); ([0.40, 0.50] => y = 1.00·x + 2.00)");
     /// ```
     ///
     pub fn merge(&self, other: &Self) -> Self {

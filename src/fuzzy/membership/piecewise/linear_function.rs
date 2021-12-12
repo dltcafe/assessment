@@ -30,9 +30,18 @@ impl LinearFunction {
     /// LinearFunction::new(2.3, 3.4);
     /// ```
     pub fn new(slope: f64, intercept: f64) -> Self {
+        let r = |v| {
+            let aux = f64::round(v * DECIMALS_POW) / DECIMALS_POW;
+            if aux.abs() <= 1.0 / DECIMALS_POW {
+                0.0
+            } else {
+                aux
+            }
+        };
+
         Self {
-            slope: f64::round(slope * DECIMALS_POW) / DECIMALS_POW,
-            intercept: f64::round(intercept * DECIMALS_POW) / DECIMALS_POW,
+            slope: r(slope),
+            intercept: r(intercept),
         }
     }
 
