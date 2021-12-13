@@ -446,7 +446,6 @@ impl Qualitative<Trapezoidal> {
 
         let diff = compute_diff(1);
         for pos in 2..cardinality {
-            println!("{} {}", diff, compute_diff(pos));
             if !utilities::math::approx_equal_f32(diff, compute_diff(pos), 5) {
                 return false;
             }
