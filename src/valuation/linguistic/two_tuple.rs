@@ -2,7 +2,7 @@ use crate::domain::Qualitative;
 use crate::fuzzy::membership::Trapezoidal;
 use crate::fuzzy::{Label, LabelMembership};
 use crate::utilities;
-use crate::valuation::{Linguistic, Unified, UnifiedError};
+use crate::valuation::{Linguistic, Single, Unified, UnifiedError};
 use crate::Valuation;
 use std::fmt::{Display, Formatter};
 
@@ -543,7 +543,7 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
     /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
     /// let unified = valuation.unification_in_domain(&unification_domain).unwrap();
     /// let measures = unified.measures();
-    /// let expected_measures =  vec![0.48, 0.52, 0.0, 0.0, 0.0];
+    /// let expected_measures =  vec![0.0, 0.0, 0.4, 0.6, 0.0];
     /// for i in 0..(expected_measures.len()) {
     ///     assert!(
     ///         utilities::math::approx_equal_f32(
@@ -588,10 +588,10 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
         &self,
         domain: &'domain Qualitative<Trapezoidal>,
     ) -> Result<Unified, UnifiedError<'domain>> {
-        let beta = (self.inverse_delta() * (self.domain.cardinality() - 1) as f32)
-            / domain.cardinality() as f32;
+        let beta = (self.inverse_delta() * (domain.cardinality() - 1) as f32)
+            / (self.domain.cardinality() - 1) as f32;
         let index = beta.round() as usize;
-        let alpha = beta - index as f32;
+        let alpha = utilities::math::round_f32(beta - index as f32, 5);
 
         let mut measures: Vec<f32> = vec![0.; domain.cardinality()];
         measures[index] = 1. - alpha.abs();
@@ -627,7 +627,7 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
     ///
     /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
     /// let transformed = valuation.transform_in_domain(&unification_domain).unwrap();
-    /// let expected = TwoTuple::new_by_label_index(&unification_domain, 1, -0.48).unwrap();
+    /// let expected = TwoTuple::new_by_label_index(&unification_domain, 3, -0.4).unwrap();
     /// assert_eq!(transformed, expected);
     /// ```
     ///
@@ -665,8 +665,8 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
         } else {
             Ok(TwoTuple::delta(
                 &domain,
-                (self.inverse_delta() * (self.domain.cardinality() - 1) as f32)
-                    / domain.cardinality() as f32,
+                (self.inverse_delta() * (domain.cardinality() - 1) as f32)
+                    / (self.domain.cardinality() - 1) as f32,
             )
             .unwrap())
         }
@@ -720,7 +720,7 @@ impl<'domain> TryFrom<TwoTuple<'domain, Trapezoidal>> for Unified<'domain> {
         let mut measures: Vec<f32> = vec![0.; value.domain.cardinality()];
         let index = value.index();
         let alpha = value.alpha();
-        measures[index] = 1. - alpha.abs();
+        measures[index] = utilities::math::round_f32(1. - alpha.abs(), 5);
         if alpha != 0. {
             measures[if alpha > 0. { index + 1 } else { index - 1 }] = alpha.abs()
         }
@@ -774,7 +774,7 @@ impl<'domain> TryFrom<&TwoTuple<'domain, Trapezoidal>> for Unified<'domain> {
         let mut measures: Vec<f32> = vec![0.; value.domain.cardinality()];
         let index = value.index();
         let alpha = value.alpha();
-        measures[index] = 1. - alpha.abs();
+        measures[index] = utilities::math::round_f32(1. - alpha.abs(), 5);
         if alpha != 0. {
             measures[if alpha > 0. { index + 1 } else { index - 1 }] = alpha.abs()
         }
@@ -834,5 +834,59 @@ impl<'domain> TryFrom<&Unified<'domain>> for TwoTuple<'domain, Trapezoidal> {
 
     fn try_from(value: &Unified<'domain>) -> Result<Self, Self::Error> {
         TwoTuple::delta(value.domain(), value.chi())
+    }
+}
+
+/// Generates a TwoTuple valuation from a Single valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::qualitative_domain;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Single, TwoTuple, TwoTupleError};
+/// let domain = qualitative_domain![
+///     "a" => vec![0.0, 0.0, 0.5],
+///     "b" => vec![0.0, 0.5, 1.0],
+///     "c" => vec![0.5, 1.0, 1.0]
+/// ].unwrap();
+///
+/// let valuation = Single::new_by_label_index(&domain, 1).unwrap();
+/// let two_tuple = TwoTuple::try_from(valuation).unwrap();
+/// assert_eq!(two_tuple.index(), 1);
+/// assert_eq!(two_tuple.alpha(), 0.0);
+/// ```
+impl<'domain, T: LabelMembership + Display> TryFrom<Single<'domain, T>> for TwoTuple<'domain, T> {
+    type Error = TwoTupleError<'domain, T>;
+
+    fn try_from(value: Single<'domain, T>) -> Result<Self, Self::Error> {
+        TwoTuple::new_by_label_index(value.domain(), value.index(), 0.)
+    }
+}
+
+/// Generates a TwoTuple valuation from an &Single valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::qualitative_domain;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Single, TwoTuple, TwoTupleError};
+/// let domain = qualitative_domain![
+///     "a" => vec![0.0, 0.0, 0.5],
+///     "b" => vec![0.0, 0.5, 1.0],
+///     "c" => vec![0.5, 1.0, 1.0]
+/// ].unwrap();
+///
+/// let valuation = Single::new_by_label_index(&domain, 1).unwrap();
+/// let two_tuple = TwoTuple::try_from(&valuation).unwrap();
+/// assert_eq!(two_tuple.index(), 1);
+/// assert_eq!(two_tuple.alpha(), 0.0);
+/// ```
+impl<'domain, T: LabelMembership + Display> TryFrom<&Single<'domain, T>> for TwoTuple<'domain, T> {
+    type Error = TwoTupleError<'domain, T>;
+
+    fn try_from(value: &Single<'domain, T>) -> Result<Self, Self::Error> {
+        TwoTuple::new_by_label_index(value.domain(), value.index(), 0.)
     }
 }
