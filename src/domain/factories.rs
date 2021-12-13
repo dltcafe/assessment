@@ -76,12 +76,6 @@ macro_rules! qualitative_domain {
     }
 }
 
-#[macro_export]
-macro_rules! count {
-    () => (0usize);
-    ( $x:tt $($xs:tt)* ) => (1usize + $crate::count!($($xs)*));
-}
-
 /// Creates a symmetrical qualitative domain.
 ///
 /// Note it is a wrapper of qualitative_domain macro.
