@@ -3,7 +3,7 @@
 pub use interval::{Interval, IntervalError};
 pub use linguistic::{
     Hesitant, HesitantError, HesitantRelation, Linguistic, Single, SingleError, TwoTuple,
-    TwoTupleError,
+    TwoTupleError, Unified, UnifiedError,
 };
 pub use numeric::{Numeric, NumericError};
 
