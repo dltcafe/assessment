@@ -7,7 +7,7 @@ use std::fmt::{Display, Formatter};
 /// Unified linguistic valuations.
 ///
 /// Unified valuations are a special type of linguistic valuations used for conversion
-/// between different assessments.
+/// between different valuations.
 #[derive(Debug, PartialEq)]
 pub struct Unified<'domain> {
     domain: &'domain Qualitative<Trapezoidal>,
@@ -71,13 +71,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::Unified;
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
-    ///
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     /// assert!(Unified::new(&domain, vec![0.0, 0.0, 0.0]).is_ok());
     /// ```
     ///
@@ -87,12 +82,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::{Unified, UnifiedError};
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 1.0],
-    ///     "b" => vec![0.0, 1.0, 1.0]
-    /// ].unwrap();
-    ///
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b"].unwrap();
     /// assert_eq!(
     ///     Unified::new(&domain, vec![0.0, 0.0]),
     ///     Err(UnifiedError::NonBLTSDomain { domain: &domain })
@@ -103,13 +94,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::{Unified, UnifiedError};
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
-    ///
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     /// let measures = vec![0.0, 0.0];
     /// assert_eq!(
     ///     Unified::new(&domain, measures.clone()),
@@ -121,12 +107,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::{Unified, UnifiedError};
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     ///
     /// assert_eq!(
     ///     Unified::new(&domain, vec![-1.0, 0.0, 0.0]),
@@ -163,12 +145,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::Unified;
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     ///
     /// assert_eq!(*Unified::new(&domain, vec![0.0, 0.5, 0.0]).unwrap().measures(), vec![0.0, 0.5, 0.0]);
     /// ```
@@ -182,12 +160,8 @@ impl<'domain> Unified<'domain> {
     ///
     /// ```
     /// # use assessment::valuation::Unified;
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     ///
     /// assert_eq!(*Unified::new(&domain, vec![0.0, 0.5, 0.0]).unwrap().domain(), domain);
     /// ```
@@ -200,14 +174,9 @@ impl<'domain> Unified<'domain> {
     /// # Examples
     ///
     /// ```
-    /// # use assessment::valuation::Unified;
-    /// # use assessment::qualitative_domain;
-    /// let domain = qualitative_domain![
-    ///     "a" => vec![0.0, 0.0, 0.5],
-    ///     "b" => vec![0.0, 0.5, 1.0],
-    ///     "c" => vec![0.5, 1.0, 1.0]
-    /// ].unwrap();
-    ///
+    /// # use assessment::valuation::{Unified, UnifiedError};
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
     /// for (measures, chi) in [
     ///     (vec![0.0, 0.0, 0.0], 0.0),
     ///     (vec![0.5, 0.0, 0.0], 0.0),
