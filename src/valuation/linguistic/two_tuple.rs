@@ -515,6 +515,164 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     }
 }
 
+impl<'domain> TwoTuple<'domain, Trapezoidal> {
+    /// Unification of a valuation in a new domain.
+    ///
+    /// # Arguments
+    /// * `domain`: Domain in which perform the unification.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::valuation::{TwoTuple, Unified, UnifiedError};
+    /// # use assessment::utilities;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 0.5],
+    ///     "b" => vec![0.0, 0.5, 1.0],
+    ///     "c" => vec![0.5, 1.0, 1.0]
+    /// ].unwrap();
+    /// let unification_domain = qualitative_domain![
+    ///     "a" => vec![0.00, 0.00, 0.25],
+    ///     "b" => vec![0.00, 0.25, 0.50],
+    ///     "c" => vec![0.25, 0.50, 0.75],
+    ///     "d" => vec![0.50, 0.75, 1.00],
+    ///     "e" => vec![0.75, 1.00, 1.00]
+    /// ].unwrap();
+    ///
+    /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
+    /// let unified = valuation.unification_in_domain(&unification_domain).unwrap();
+    /// let measures = unified.measures();
+    /// let expected_measures =  vec![0.48, 0.52, 0.0, 0.0, 0.0];
+    /// for i in 0..(expected_measures.len()) {
+    ///     assert!(
+    ///         utilities::math::approx_equal_f32(
+    ///             measures[i],
+    ///             expected_measures[i],
+    ///             5
+    ///         ),
+    ///         "({}) Value {:.2} vs. Expected {:.2}",
+    ///         i,
+    ///         measures[i],
+    ///         expected_measures[i]
+    ///     );
+    /// }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// **UnifiedError::NonBLTSDomain**: If `domain` is a Non-BLTS domain.
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::valuation::{TwoTuple, Unified, UnifiedError};
+    /// # use assessment::utilities;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 0.5],
+    ///     "b" => vec![0.0, 0.5, 1.0],
+    ///     "c" => vec![0.5, 1.0, 1.0]
+    /// ].unwrap();
+    /// let unification_domain = qualitative_domain![
+    ///     "a" => vec![0.00, 0.00, 0.25],
+    ///     "b" => vec![0.00, 0.25, 0.50],
+    ///     "c" => vec![0.25, 0.50, 0.75],
+    ///     "d" => vec![0.50, 0.75, 1.00]
+    /// ].unwrap();
+    ///
+    /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
+    /// assert_eq!(
+    ///     valuation.unification_in_domain(&unification_domain),
+    ///     Err(UnifiedError::NonBLTSDomain { domain: &unification_domain })
+    /// );
+    /// ```
+    pub fn unification_in_domain(
+        &self,
+        domain: &'domain Qualitative<Trapezoidal>,
+    ) -> Result<Unified, UnifiedError<'domain>> {
+        let beta = (self.inverse_delta() * (self.domain.cardinality() - 1) as f32)
+            / domain.cardinality() as f32;
+        let index = beta.round() as usize;
+        let alpha = beta - index as f32;
+
+        let mut measures: Vec<f32> = vec![0.; domain.cardinality()];
+        measures[index] = 1. - alpha.abs();
+        if alpha != 0. {
+            measures[if alpha > 0. { index + 1 } else { index - 1 }] = alpha.abs()
+        }
+        Unified::new(&domain, measures)
+    }
+
+    /// Transform into a TwoTuple valuation in a different domain.
+    ///
+    /// # Arguments
+    /// * `domain`: Domain to be used.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::valuation::{TwoTuple, Unified, UnifiedError};
+    /// # use assessment::utilities;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 0.5],
+    ///     "b" => vec![0.0, 0.5, 1.0],
+    ///     "c" => vec![0.5, 1.0, 1.0]
+    /// ].unwrap();
+    /// let unification_domain = qualitative_domain![
+    ///     "a" => vec![0.00, 0.00, 0.25],
+    ///     "b" => vec![0.00, 0.25, 0.50],
+    ///     "c" => vec![0.25, 0.50, 0.75],
+    ///     "d" => vec![0.50, 0.75, 1.00],
+    ///     "e" => vec![0.75, 1.00, 1.00]
+    /// ].unwrap();
+    ///
+    /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
+    /// let transformed = valuation.transform_in_domain(&unification_domain).unwrap();
+    /// let expected = TwoTuple::new_by_label_index(&unification_domain, 1, -0.48).unwrap();
+    /// assert_eq!(transformed, expected);
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// **UnifiedError::NonBLTSDomain**: If `domain` is a Non-BLTS domain.
+    /// ```
+    /// # use assessment::qualitative_domain;
+    /// # use assessment::valuation::{TwoTuple, Unified, UnifiedError};
+    /// # use assessment::utilities;
+    /// let domain = qualitative_domain![
+    ///     "a" => vec![0.0, 0.0, 0.5],
+    ///     "b" => vec![0.0, 0.5, 1.0],
+    ///     "c" => vec![0.5, 1.0, 1.0]
+    /// ].unwrap();
+    /// let unification_domain = qualitative_domain![
+    ///     "a" => vec![0.00, 0.00, 0.25],
+    ///     "b" => vec![0.00, 0.25, 0.50],
+    ///     "c" => vec![0.25, 0.50, 0.75],
+    ///     "d" => vec![0.50, 0.75, 1.00]
+    /// ].unwrap();
+    ///
+    /// let valuation = TwoTuple::new_by_label_index(&domain, 1, 0.3).unwrap();
+    /// assert_eq!(
+    ///     valuation.transform_in_domain(&unification_domain),
+    ///     Err(UnifiedError::NonBLTSDomain { domain: &unification_domain })
+    /// );
+    /// ```
+    pub fn transform_in_domain(
+        &self,
+        domain: &'domain Qualitative<Trapezoidal>,
+    ) -> Result<Self, UnifiedError<'domain>> {
+        if !domain.is_blts() {
+            Err(UnifiedError::NonBLTSDomain { domain: &domain })
+        } else {
+            Ok(TwoTuple::delta(
+                &domain,
+                (self.inverse_delta() * (self.domain.cardinality() - 1) as f32)
+                    / domain.cardinality() as f32,
+            )
+            .unwrap())
+        }
+    }
+}
+
 /// Generates a Unified valuation from a TwoTuple valuation.
 ///
 /// # Examples
