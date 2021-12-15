@@ -9,5 +9,7 @@ pub mod two_tuple;
 
 pub mod numeric;
 
+pub mod interval;
+
 /// Unified linguistic valuations.
 pub mod unified;

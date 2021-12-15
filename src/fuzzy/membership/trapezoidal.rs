@@ -212,7 +212,7 @@ impl Trapezoidal {
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.1, 0.2]), 0.1),
     ///     (Trapezoidal::new(vec![0.0, 0.1, 0.2]), 0.1)
     /// ] {
-    ///     assert!((v.unwrap().centroid() - e).abs() < 0.00001);
+    ///     assert!((v.unwrap().centroid() - e).abs() < 0.01);
     /// }
     /// ```
     pub fn centroid(&self) -> f32 {
@@ -246,7 +246,7 @@ impl Trapezoidal {
     /// }
     /// ```
     pub fn is_symmetrical(&self) -> bool {
-        ((self.b - self.a) - (self.d - self.c)).abs() < 0.00001
+        ((self.b - self.a) - (self.d - self.c)).abs() < 0.01
     }
 
     /// Checks if the membership is symmetrical respect `other` in the `center` point.
@@ -298,7 +298,7 @@ impl Trapezoidal {
     ///     (0.5, 0.0),
     ///     (0.6, 0.0),
     /// ] {
-    ///     assert!((t.membership_value(v) - e).abs() < 0.00001);
+    ///     assert!((t.membership_value(v) - e).abs() < 0.01);
     /// }
     /// ```
     pub fn membership_value(&self, x: f32) -> f32 {
@@ -310,6 +310,34 @@ impl Trapezoidal {
             (x - self.a) / (self.b - self.a)
         } else {
             (x - self.d) / (self.c - self.d)
+        }
+    }
+
+    /// Returns maxmin value in interval `[max-min]`.
+    ///
+    /// # Arguments
+    /// * `min`: Interval min value.
+    /// * `max`: Interval max value.
+    ///
+    /// ```
+    /// # use assessment::fuzzy::membership::Trapezoidal;
+    /// let t = Trapezoidal::new(vec![0.0, 0.1, 0.2, 0.5]).unwrap();
+    /// for (min, max, expected) in [
+    ///     (0.0, 0.0, 0.0),
+    ///     (0.0, 0.5, 1.0),
+    ///     (0.3, 0.8, 0.67),
+    ///     (0.4, 0.4, 0.33),
+    /// ] {
+    ///     assert!((t.max_min(min, max) - expected).abs() < 0.01, "Value {:.2} vs. Expected {:.2}", t.max_min(min, max), expected);
+    /// }
+    /// ```
+    pub fn max_min(&self, min: f32, max: f32) -> f32 {
+        if max >= self.b && min <= self.c {
+            1.0
+        } else if max < self.b {
+            self.membership_value(max)
+        } else {
+            self.membership_value(min)
         }
     }
 }
