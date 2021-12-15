@@ -63,7 +63,7 @@ impl<'domain> Single<'domain, Trapezoidal> {
         let mut measures: Vec<f32> = vec![0.; domain.cardinality()];
         measures[self.index() * (domain.cardinality() - 1) / (self.domain().cardinality() - 1)] =
             1.;
-        Unified::new(&domain, measures)
+        Unified::new(domain, measures)
     }
 
     /// Transform into a Single valuation in a different domain.
@@ -109,10 +109,10 @@ impl<'domain> Single<'domain, Trapezoidal> {
         domain: &'domain Qualitative<Trapezoidal>,
     ) -> Result<Self, UnifiedError<'domain>> {
         if !domain.is_blts() {
-            Err(UnifiedError::NonBLTSDomain { domain: &domain })
+            Err(UnifiedError::NonBLTSDomain { domain })
         } else {
             Ok(Single::new_by_label_index(
-                &domain,
+                domain,
                 self.index() * (domain.cardinality() - 1) / (self.domain().cardinality() - 1),
             )
             .unwrap())
@@ -157,7 +157,7 @@ impl<'domain> TryFrom<&Single<'domain, Trapezoidal>> for Unified<'domain> {
     fn try_from(value: &Single<'domain, Trapezoidal>) -> Result<Self, Self::Error> {
         let mut measures: Vec<f32> = vec![0.; value.domain().cardinality()];
         measures[value.index()] = 1.;
-        Unified::new(&value.domain(), measures)
+        Unified::new(value.domain(), measures)
     }
 }
 

@@ -51,7 +51,7 @@ impl<T: LabelMembership + Display> Display for Qualitative<T> {
 
 impl<T: LabelMembership> Qualitative<T> {
     /// Returns the first duplicate value.
-    fn _find_duplicate(labels: &Vec<&str>) -> Option<String> {
+    fn _find_duplicate(labels: &[&str]) -> Option<String> {
         let mut set = HashSet::new();
         for label in labels {
             if set.contains(label) {
@@ -342,9 +342,9 @@ impl Qualitative<Trapezoidal> {
         true
     }
 
-    /// Checks if the domain is **T**riangular, **O**dd and **R**uspini.
+    /// Checks if the domain is Triangular, Odd and Ruspini.
     ///
-    /// Note that Ruspine eq. Fuzzy partition.
+    /// Note that Ruspini eq. Fuzzy partition.
     ///
     /// # Examples
     ///
@@ -454,7 +454,7 @@ impl Qualitative<Trapezoidal> {
         true
     }
 
-    /// Checks if the domain is a **B**asic **L**inguistic **T**erm **S*+et.
+    /// Checks if the domain is a Basic Linguistic Term Set.
     ///
     /// # Examples
     ///
@@ -507,7 +507,7 @@ impl From<&Qualitative<Trapezoidal>> for PiecewiseLinearFunction {
         domain
             .labels
             .iter()
-            .map(|label| PiecewiseLinearFunction::from(label))
+            .map(PiecewiseLinearFunction::from)
             .for_each(|function| result = result.merge(&function));
         result
     }

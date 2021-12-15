@@ -71,7 +71,7 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
         if alpha != 0. {
             measures[if alpha > 0. { index + 1 } else { index - 1 }] = alpha.abs()
         }
-        Unified::new(&domain, measures)
+        Unified::new(domain, measures)
     }
 
     /// Transform into a TwoTuple valuation in a different domain.
@@ -117,10 +117,10 @@ impl<'domain> TwoTuple<'domain, Trapezoidal> {
         domain: &'domain Qualitative<Trapezoidal>,
     ) -> Result<Self, UnifiedError<'domain>> {
         if !domain.is_blts() {
-            Err(UnifiedError::NonBLTSDomain { domain: &domain })
+            Err(UnifiedError::NonBLTSDomain { domain })
         } else {
             Ok(TwoTuple::delta(
-                &domain,
+                domain,
                 (self.inverse_delta() * (domain.cardinality() - 1) as f32)
                     / (self.domain().cardinality() - 1) as f32,
             )
@@ -173,7 +173,7 @@ impl<'domain> TryFrom<&TwoTuple<'domain, Trapezoidal>> for Unified<'domain> {
         if alpha != 0. {
             measures[if alpha > 0. { index + 1 } else { index - 1 }] = alpha.abs()
         }
-        Unified::new(&value.domain(), measures)
+        Unified::new(value.domain(), measures)
     }
 }
 

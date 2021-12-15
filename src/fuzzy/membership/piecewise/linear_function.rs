@@ -80,8 +80,8 @@ impl LinearFunction {
     }
 }
 
-impl_op!(+ |a: &LinearFunction, b: &LinearFunction| -> LinearFunction { a.sum(&b) });
-impl_op!(+ |a: LinearFunction, b: &LinearFunction| -> LinearFunction { a.sum(&b) });
+impl_op!(+ |a: &LinearFunction, b: &LinearFunction| -> LinearFunction { a.sum(b) });
+impl_op!(+ |a: LinearFunction, b: &LinearFunction| -> LinearFunction { a.sum(b) });
 impl_op!(+ |a: &LinearFunction, b: LinearFunction| -> LinearFunction { a.sum(&b) });
 impl_op!(+ |a: LinearFunction, b: LinearFunction| -> LinearFunction { a.sum(&b) });
 

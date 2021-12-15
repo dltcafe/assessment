@@ -178,7 +178,7 @@ pub fn standardize_name(name: &str) -> String {
 /// }
 /// ```
 pub fn is_standardized(name: &str) -> bool {
-    name.to_string() == standardize_name(name)
+    *name == standardize_name(name)
 }
 
 /// Returns labels names.
@@ -197,7 +197,7 @@ pub fn is_standardized(name: &str) -> bool {
 /// ].unwrap();
 /// assert_eq!(get_labels_names(&labels), vec!["a", "b"]);
 /// ```
-pub fn get_labels_names<T: Display + LabelMembership>(labels: &Vec<Label<T>>) -> Vec<&str> {
+pub fn get_labels_names<T: Display + LabelMembership>(labels: &[Label<T>]) -> Vec<&str> {
     labels
         .iter()
         .map(|l| l.name().as_str())

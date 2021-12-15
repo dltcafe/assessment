@@ -203,7 +203,7 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     /// }
     /// ```
     pub fn label(&self) -> &Label<T> {
-        &self.domain.get_label_by_index(self.index).unwrap()
+        self.domain.get_label_by_index(self.index).unwrap()
     }
 
     /// Returns valuation domain.

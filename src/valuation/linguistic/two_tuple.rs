@@ -185,7 +185,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
         alpha = utilities::math::round_f32(alpha, 5);
         if index > domain.cardinality() - 1 {
             Err(InvalidIndex { domain, index })
-        } else if alpha < -0.5 || alpha >= 0.5 {
+        } else if !(-0.5..0.5).contains(&alpha) {
             Err(InvalidSymbolicTranslationValue { alpha })
         } else if index == 0 && alpha < 0.0 {
             Err(InvalidSymbolicTranslationOnFirstLabel { alpha })
@@ -357,7 +357,7 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     /// }
     /// ```
     pub fn label(&self) -> &Label<T> {
-        &self.domain.get_label_by_index(self.index).unwrap()
+        self.domain.get_label_by_index(self.index).unwrap()
     }
 
     /// Returns symbolic translation value.
