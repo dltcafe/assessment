@@ -11,6 +11,9 @@ pub struct Quantitative<T: QuantitativeLimit> {
     sup: T,
 }
 
+/// Normalization domain
+pub static NORMALIZATION_DOMAIN: Quantitative<f64> = Quantitative { inf: 0.0, sup: 1.0 };
+
 /// Quantitative errors types.
 #[derive(Debug, PartialEq)]
 pub enum QuantitativeError<T: QuantitativeLimit> {

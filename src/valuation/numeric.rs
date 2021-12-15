@@ -1,3 +1,4 @@
+use crate::domain::quantitative::NORMALIZATION_DOMAIN;
 use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
@@ -144,16 +145,24 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Numeric
     /// ```
     /// # use assessment::valuation::Numeric;
     /// # use assessment::domain::Quantitative;
+    /// # pub  use assessment::domain::quantitative::NORMALIZATION_DOMAIN;
     /// let domain = Quantitative::new(0.0, 10.0).unwrap();
     /// let valuation = Numeric::new(&domain, 2.0).unwrap();
-    /// assert_eq!(valuation.normalize(), 0.2);
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), 0.2);
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
     ///
     /// let domain = Quantitative::new(-1, 5).unwrap();
     /// let valuation = Numeric::new(&domain, 2).unwrap();
-    /// assert_eq!(valuation.normalize(), 0.5);
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), 0.5);
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
     /// ```
-    pub fn normalize(&self) -> f64 {
-        (self.value.into() - self.domain.inf().into())
-            / (self.domain.sup().into() - self.domain.inf().into())
+    pub fn normalize(&self) -> Numeric<f64> {
+        Numeric::<f64> {
+            value: (self.value.into() - self.domain.inf().into())
+                / (self.domain.sup().into() - self.domain.inf().into()),
+            domain: &NORMALIZATION_DOMAIN,
+        }
     }
 }

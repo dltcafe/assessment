@@ -1,3 +1,4 @@
+use crate::domain::quantitative::NORMALIZATION_DOMAIN;
 use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
@@ -169,18 +170,27 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Interva
     /// ```
     /// # use assessment::valuation::Interval;
     /// # use assessment::domain::Quantitative;
+    /// # use assessment::domain::quantitative::NORMALIZATION_DOMAIN;
     /// let domain = Quantitative::new(0.0, 10.0).unwrap();
     /// let valuation = Interval::new(&domain, 2.0, 3.5).unwrap();
-    /// assert_eq!(valuation.normalize(), (0.2, 0.35));
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), (0.2, 0.35));
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
     ///
     /// let domain = Quantitative::new(-1, 5).unwrap();
     /// let valuation = Interval::new(&domain, 2, 5).unwrap();
-    /// assert_eq!(valuation.normalize(), (0.5, 1.0));
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), (0.5, 1.0));
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
     /// ```
-    pub fn normalize(&self) -> (f64, f64) {
+    pub fn normalize(&self) -> Interval<f64> {
         let normalize = |v: f64| {
             (v - self.domain.inf().into()) / (self.domain.sup().into() - self.domain.inf().into())
         };
-        (normalize(self.min.into()), normalize(self.max.into()))
+        Interval::<f64> {
+            domain: &NORMALIZATION_DOMAIN,
+            min: normalize(self.min.into()),
+            max: normalize(self.max.into()),
+        }
     }
 }
