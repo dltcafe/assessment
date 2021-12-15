@@ -128,7 +128,7 @@ impl<'domain> Single<'domain, Trapezoidal> {
 /// # use assessment::qualitative_symmetric_domain;
 /// # use assessment::valuation::{Single, Unified, UnifiedError};
 /// # use assessment::utilities;
-/// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();///
+/// let domain = qualitative_symmetric_domain!["a", "b", "c"].unwrap();
 /// let valuation = Single::new_by_label_index(&domain, 1).unwrap();
 /// let unified = Unified::try_from(&valuation).unwrap();
 /// assert_eq!(*unified.measures(), vec![0.0, 1.0, 0.0]);

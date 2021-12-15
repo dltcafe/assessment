@@ -15,16 +15,14 @@
 ///     (1.0, 1.1, 0, true),
 ///     (1.0, 1.1, 1, false),
 ///     (1.01, 1.02, 1, true),
-///     (1.01, 1.02, 2, false)
+///     (1.01, 1.02, 2, false),
 /// ] {
-///     assert_eq!(approx_equal_f32(a, b, d), r);
+///     assert_eq!(approx_equal_f32(a, b, d), r, "Failed with values {:.2} and {:.2} and {} decimals", a, b, d);
 /// }
 /// ```
-pub fn approx_equal_f32(a: f32, b: f32, decimal_places: u8) -> bool {
-    let factor = 10.0f32.powi(decimal_places as i32);
-    let a = (a * factor).round() as u128;
-    let b = (b * factor).round() as u128;
-    a == b
+pub fn approx_equal_f32(a: f32, b: f32, decimal_places: i32) -> bool {
+    let factor = 10.0f32.powi(decimal_places);
+    (a * factor).round() as u128 == (b * factor).round() as u128
 }
 
 /// Checks if two f64 values are equals with diff < 1/10<sup>decimal_places</sup>.
@@ -44,16 +42,14 @@ pub fn approx_equal_f32(a: f32, b: f32, decimal_places: u8) -> bool {
 ///     (1.0, 1.1, 0, true),
 ///     (1.0, 1.1, 1, false),
 ///     (1.01, 1.02, 1, true),
-///     (1.01, 1.02, 2, false)
+///     (1.01, 1.02, 2, false),
 /// ] {
-///     assert_eq!(approx_equal_f64(a, b, d), r);
+///     assert_eq!(approx_equal_f64(a, b, d), r, "Failed with values {:.2} and {:.2} and {} decimals", a, b, d);
 /// }
 /// ```
-pub fn approx_equal_f64(a: f64, b: f64, decimal_places: u8) -> bool {
-    let factor = 10.0f64.powi(decimal_places as i32);
-    let a = (a * factor).round() as u128;
-    let b = (b * factor).round() as u128;
-    a == b
+pub fn approx_equal_f64(a: f64, b: f64, decimal_places: i32) -> bool {
+    let factor = 10.0f64.powi(decimal_places);
+    (a * factor).round() as u128 == (b * factor).round() as u128
 }
 
 /// Rounds a f64 value to `decimals`.

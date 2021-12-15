@@ -35,7 +35,7 @@ impl<T: QuantitativeLimit + Display> Display for NumericError<T> {
 impl<'domain, T: QuantitativeLimit> Valuation for Numeric<'domain, T> {}
 
 // Note: + <Trait> added because clion doesn't detect here correctly the trait_alias feature
-impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T> {
+impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Numeric<'domain, T> {
     /// Creates a new valuation.
     ///
     /// # Arguments
@@ -133,5 +133,27 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// ```
     pub fn domain(&self) -> &'domain Quantitative<T> {
         self.domain
+    }
+
+    /// Value normalized in domain 0.0 to 1.0.
+    ///
+    /// Note that the type of value is f64.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Numeric;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0.0, 10.0).unwrap();
+    /// let valuation = Numeric::new(&domain, 2.0).unwrap();
+    /// assert_eq!(valuation.normalize(), 0.2);
+    ///
+    /// let domain = Quantitative::new(-1, 5).unwrap();
+    /// let valuation = Numeric::new(&domain, 2).unwrap();
+    /// assert_eq!(valuation.normalize(), 0.5);
+    /// ```
+    pub fn normalize(&self) -> f64 {
+        (self.value.into() - self.domain.inf().into())
+            / (self.domain.sup().into() - self.domain.inf().into())
     }
 }

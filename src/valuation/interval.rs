@@ -42,7 +42,7 @@ impl<T: QuantitativeLimit + Display> Display for IntervalError<T> {
 impl<'domain, T: QuantitativeLimit> Valuation for Interval<'domain, T> {}
 
 // Note: + <Trait> added because clion doesn't detect here correctly the trait_alias feature
-impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T> {
+impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Interval<'domain, T> {
     /// Creates a new valuation.
     ///
     /// # Arguments
@@ -158,5 +158,29 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Interval<'domain, T
     /// ```
     pub fn domain(&self) -> &'domain Quantitative<T> {
         self.domain
+    }
+
+    /// Value normalized in domain 0.0 to 1.0.
+    ///
+    /// Note that the type of value is f64.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Interval;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0.0, 10.0).unwrap();
+    /// let valuation = Interval::new(&domain, 2.0, 3.5).unwrap();
+    /// assert_eq!(valuation.normalize(), (0.2, 0.35));
+    ///
+    /// let domain = Quantitative::new(-1, 5).unwrap();
+    /// let valuation = Interval::new(&domain, 2, 5).unwrap();
+    /// assert_eq!(valuation.normalize(), (0.5, 1.0));
+    /// ```
+    pub fn normalize(&self) -> (f64, f64) {
+        let normalize = |v: f64| {
+            (v - self.domain.inf().into()) / (self.domain.sup().into() - self.domain.inf().into())
+        };
+        (normalize(self.min.into()), normalize(self.max.into()))
     }
 }
