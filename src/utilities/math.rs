@@ -1,3 +1,5 @@
+use std::ops::{Add, Div, Mul, Sub};
+
 /// Checks if two f32 values are equals with diff < 1/10<sup>decimal_places</sup>.
 ///
 /// # Arguments
@@ -120,4 +122,44 @@ pub fn round_f32(v: f32, decimals: u32) -> f32 {
             result
         }
     }
+}
+
+/// Transforms a value from a source range to a target range.
+///
+/// # Arguments
+/// * `value`: Value to transform.
+/// * `source_min`: Source range min value.
+/// * `source_max`: Source range max value.
+/// * `target_min`: Target range min value.
+/// * `target_max`: Target range max value.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::utilities::math::*;
+///
+/// for (value, source_min, source_max, target_min, target_max, expected) in [
+///     (5, 0, 10, 0, 100, 50),
+/// ] {
+///     assert_eq!(transform_range(value, source_min, source_max, target_min, target_max), expected);
+/// }
+///
+/// for (value, source_min, source_max, target_min, target_max, expected) in [
+///     (-0.3, -1.0, 0.0, 0.0, 1.0, 0.7),
+/// ] {
+///     assert_eq!(transform_range(value, source_min, source_max, target_min, target_max), expected);
+/// }
+/// ```
+///
+pub fn transform_range<T>(value: T, source_min: T, source_max: T, target_min: T, target_max: T) -> T
+where
+    T: Mul<Output = T>,
+    T: Add<Output = T>,
+    T: Sub<Output = T>,
+    T: Div<Output = T>,
+    T: Copy,
+{
+    let source_range = source_max - source_min;
+    let target_range = target_max - target_min;
+    (((value - source_min) * target_range) / source_range) + target_min
 }
