@@ -203,4 +203,29 @@ impl<'domain> Unified<'domain> {
             0.
         }
     }
+
+    /// Valuation negation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::{Unified, UnifiedError};
+    /// # use assessment::qualitative_symmetric_domain;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c", "d", "e"].unwrap();
+    /// for (measures, negation_measures) in [
+    ///     (vec![0.0, 0.0, 0.0, 0.1, 0.2], vec![0.2, 0.1, 0.0, 0.0, 0.0]),
+    ///     (vec![0.5, 0.0, 0.0, 0.0, 0.0], vec![0.0, 0.0, 0.0, 0.0, 0.5]),
+    /// ] {
+    ///     assert_eq!(
+    ///         Unified::new(&domain, measures).unwrap().neg().measures(),
+    ///         Unified::new(&domain, negation_measures).unwrap().measures()
+    ///     );
+    /// }
+    /// ```
+    pub fn neg(&self) -> Self {
+        Self {
+            domain: self.domain,
+            measures: self.measures.iter().copied().rev().collect(),
+        }
+    }
 }
