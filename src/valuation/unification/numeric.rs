@@ -1,6 +1,6 @@
 use crate::domain::{Qualitative, Quantitative, QuantitativeLimit};
 use crate::fuzzy::membership::Trapezoidal;
-use crate::valuation::{Numeric, Unified, UnifiedError};
+use crate::valuation::{Interval, Numeric, NumericError, Unified, UnifiedError};
 use std::ops::{Add, Div, Mul, Sub};
 
 impl<'domain, T: QuantitativeLimit + Into<f64>> Numeric<'domain, T>
@@ -115,5 +115,121 @@ where
             ),
         )
         .unwrap()
+    }
+}
+
+/// Generates a Numeric<f32> valuation from an &Interval<f32> valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::domain::Quantitative;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Numeric, Interval};
+/// let domain = Quantitative::new(0.5_f32, 1.0_f32).unwrap();
+/// let interval = Interval::new(&domain, 0.6, 0.8).unwrap();
+/// let numeric = Numeric::try_from(&interval).unwrap();
+/// let expected = 0.7;
+/// assert!((numeric.value() - expected).abs() < 0.01);
+/// ```
+///
+impl<'domain> TryFrom<&Interval<'domain, f32>> for Numeric<'domain, f32> {
+    type Error = NumericError<f32>;
+
+    fn try_from(value: &Interval<'domain, f32>) -> Result<Self, Self::Error> {
+        Numeric::new(value.domain(), value.resume())
+    }
+}
+
+/// Generates a Numeric<f64> valuation from an &Interval<f64> valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::domain::Quantitative;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Numeric, Interval};
+/// let domain = Quantitative::new(0.5_f64, 1.0_f64).unwrap();
+/// let interval = Interval::new(&domain, 0.6, 0.8).unwrap();
+/// let numeric = Numeric::try_from(&interval).unwrap();
+/// let expected = 0.7;
+/// assert!((numeric.value() - expected).abs() < 0.01);
+/// ```
+///
+impl<'domain> TryFrom<&Interval<'domain, f64>> for Numeric<'domain, f64> {
+    type Error = NumericError<f64>;
+
+    fn try_from(value: &Interval<'domain, f64>) -> Result<Self, Self::Error> {
+        Numeric::new(value.domain(), value.resume())
+    }
+}
+
+/// Generates a Numeric<i32> valuation from an &Interval<i32> valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::domain::Quantitative;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Numeric, Interval};
+/// let domain = Quantitative::new(5, 10).unwrap();
+/// let interval = Interval::new(&domain, 6, 8).unwrap();
+/// let numeric = Numeric::try_from(&interval).unwrap();
+/// let expected = 7;
+/// assert_eq!(numeric.value(), expected);
+/// ```
+///
+impl<'domain> TryFrom<&Interval<'domain, i32>> for Numeric<'domain, i32> {
+    type Error = NumericError<i32>;
+
+    fn try_from(value: &Interval<'domain, i32>) -> Result<Self, Self::Error> {
+        Numeric::new(value.domain(), value.resume())
+    }
+}
+
+/// Generates a Numeric<f32> valuation from an Interval<f32> valuation.
+///
+/// Wrapper of Numeric::try_from(&Interval<f32>).
+///
+impl<'domain> TryFrom<Interval<'domain, f32>> for Numeric<'domain, f32> {
+    type Error = NumericError<f32>;
+
+    fn try_from(value: Interval<'domain, f32>) -> Result<Self, Self::Error> {
+        Numeric::try_from(&value)
+    }
+}
+
+/// Generates a Numeric<f64> valuation from an Interval<f64> valuation.
+///
+/// Wrapper of Numeric::try_from(&Interval<f64>).
+///
+impl<'domain> TryFrom<Interval<'domain, f64>> for Numeric<'domain, f64> {
+    type Error = NumericError<f64>;
+
+    fn try_from(value: Interval<'domain, f64>) -> Result<Self, Self::Error> {
+        Numeric::try_from(&value)
+    }
+}
+
+/// Generates a Numeric<i32> valuation from an Interval<i32> valuation.
+///
+/// Wrapper of Numeric::try_from(&Interval<i32>).
+///
+/// ```
+/// # use assessment::domain::Quantitative;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Numeric, Interval};
+/// let domain = Quantitative::new(5, 10).unwrap();
+/// let interval = Interval::new(&domain, 6, 8).unwrap();
+/// let numeric = Numeric::try_from(&interval).unwrap();
+/// let expected = 7;
+/// assert_eq!(numeric.value(), expected);
+/// ```
+///
+impl<'domain> TryFrom<Interval<'domain, i32>> for Numeric<'domain, i32> {
+    type Error = NumericError<i32>;
+
+    fn try_from(value: Interval<'domain, i32>) -> Result<Self, Self::Error> {
+        Numeric::try_from(&value)
     }
 }

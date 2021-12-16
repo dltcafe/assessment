@@ -194,3 +194,21 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Interva
         }
     }
 }
+
+impl<'domain> Interval<'domain, f64> {
+    pub fn resume(&self) -> f64 {
+        (self.max / 2.0) + (self.min / 2.0)
+    }
+}
+
+impl<'domain> Interval<'domain, f32> {
+    pub fn resume(&self) -> f32 {
+        (self.max / 2.0) + (self.min / 2.0)
+    }
+}
+
+impl<'domain> Interval<'domain, i32> {
+    pub fn resume(&self) -> i32 {
+        (self.max / 2) + (self.min / 2)
+    }
+}

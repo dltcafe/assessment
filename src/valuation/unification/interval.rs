@@ -1,6 +1,6 @@
 use crate::domain::{Qualitative, Quantitative, QuantitativeLimit};
 use crate::fuzzy::membership::Trapezoidal;
-use crate::valuation::{Interval, Unified, UnifiedError};
+use crate::valuation::{Interval, IntervalError, Numeric, Unified, UnifiedError};
 use std::ops::{Add, Div, Mul, Sub};
 
 impl<'domain, T: QuantitativeLimit + Into<f64>> Interval<'domain, T>
@@ -125,5 +125,44 @@ where
             ),
         )
         .unwrap()
+    }
+}
+
+/// Generates an Interval valuation from a &Numeric valuation.
+///
+/// # Examples
+///
+/// ```
+/// # use assessment::domain::Quantitative;
+/// # use assessment::utilities;
+/// # use assessment::valuation::{Numeric, Interval};
+/// let domain = Quantitative::new(5, 10).unwrap();
+/// let numeric = Numeric::new(&domain, 6).unwrap();
+/// let interval = Interval::try_from(&numeric).unwrap();
+/// let expected = (6, 6);
+/// assert_eq!(interval.value(), expected);
+/// ```
+///
+impl<'domain, T: QuantitativeLimit + Into<f64>> TryFrom<&Numeric<'domain, T>>
+    for Interval<'domain, T>
+{
+    type Error = IntervalError<T>;
+
+    fn try_from(value: &Numeric<'domain, T>) -> Result<Self, Self::Error> {
+        Interval::new(value.domain(), value.value(), value.value())
+    }
+}
+
+/// Generates an Interval valuation from a Numeric valuation.
+///
+/// Wrapper of Interval::try_from(&Numeric).
+///
+impl<'domain, T: QuantitativeLimit + Into<f64>> TryFrom<Numeric<'domain, T>>
+    for Interval<'domain, T>
+{
+    type Error = IntervalError<T>;
+
+    fn try_from(value: Numeric<'domain, T>) -> Result<Self, Self::Error> {
+        Interval::try_from(&value)
     }
 }
