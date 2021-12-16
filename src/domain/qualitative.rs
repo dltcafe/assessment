@@ -51,7 +51,7 @@ impl<T: LabelMembership + Display> Display for Qualitative<T> {
 
 impl<T: LabelMembership> Qualitative<T> {
     /// Returns the first duplicate value.
-    fn _find_duplicate(labels: &Vec<&str>) -> Option<String> {
+    fn _find_duplicate(labels: &[&str]) -> Option<String> {
         let mut set = HashSet::new();
         for label in labels {
             if set.contains(label) {
@@ -342,9 +342,9 @@ impl Qualitative<Trapezoidal> {
         true
     }
 
-    /// Checks if the domain is **T**riangular, **O**dd and **R**uspini.
+    /// Checks if the domain is Triangular, Odd and Ruspini.
     ///
-    /// Note that Ruspine eq. Fuzzy partition.
+    /// Note that Ruspini eq. Fuzzy partition.
     ///
     /// # Examples
     ///
@@ -454,7 +454,7 @@ impl Qualitative<Trapezoidal> {
         true
     }
 
-    /// Checks if the domain is a **B**asic **L**inguistic **T**erm **S*+et.
+    /// Checks if the domain is a Basic Linguistic Term Set.
     ///
     /// # Examples
     ///
@@ -473,77 +473,6 @@ impl Qualitative<Trapezoidal> {
     /// ```
     pub fn is_blts(&self) -> bool {
         self.is_tor() && self.is_symmetrical() && self.is_uniform()
-    }
-}
-
-/// Qualitative domain.
-///
-/// Generates a qualitative domain. Note it is a wrapper of trapezoidal_labels macro.
-///
-/// # Examples
-///
-/// ```
-/// # use assessment::qualitative_domain;
-/// let domain = qualitative_domain![
-///     "a" => vec![0.0, 0.0, 1.0],
-///     "b" => vec![0.0, 1.0, 1.0]
-/// ].unwrap();
-///
-/// assert_eq!(
-///     format!("{}", domain),
-///     "[a => (0.00, 0.00, 1.00), b => (0.00, 1.00, 1.00)]"
-/// );
-/// ```
-///
-/// # Errors
-///
-/// **String**: If any label name is invalid ([Label::new]).
-///
-/// ```
-/// # use assessment::qualitative_domain;
-/// assert!(
-///     qualitative_domain![
-///         " a" => vec![0.0, 0.0, 1.0]
-///     ].is_err()
-/// );
-/// ```
-///
-/// **String**: If any label limits are invalid (see [Trapezoidal::new]).
-///
-/// ```
-/// # use assessment::qualitative_domain;
-/// assert!(
-///     qualitative_domain![
-///         "a" => vec![0.0, 0.0, 1.0, 1.0, 1.0]
-///     ].is_err()
-/// );
-/// ```
-///
-/// **String**: If labels are invalid (see [Qualitative::new]).
-///
-/// ```
-/// # use assessment::qualitative_domain;
-/// assert!(
-///     qualitative_domain![
-///         "a" => vec![0.0, 0.0, 1.0],
-///         "a" => vec![0.0, 1.0, 1.0]
-///     ].is_err()
-/// );
-/// ```
-#[macro_export]
-macro_rules! qualitative_domain {
-    ( $( $name:expr => $membership:expr ),* ) => {
-        {
-            match $crate::trapezoidal_labels![$( $name => $membership ),*] {
-                Ok(labels) => {
-                    match $crate::domain::Qualitative::new(labels) {
-                        Ok(domain) => Ok(domain),
-                        Err(e) => Err(format!("{}", e)),
-                    }
-                },
-                Err(e) => Err(format!("{}", e))
-            }
-        }
     }
 }
 
@@ -578,7 +507,7 @@ impl From<&Qualitative<Trapezoidal>> for PiecewiseLinearFunction {
         domain
             .labels
             .iter()
-            .map(|label| PiecewiseLinearFunction::from(label))
+            .map(PiecewiseLinearFunction::from)
             .for_each(|function| result = result.merge(&function));
         result
     }

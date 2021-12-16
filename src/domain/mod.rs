@@ -9,5 +9,8 @@ pub mod quantitative;
 /// Qualitative struct and related implementations.
 pub mod qualitative;
 
+/// Domain factories
+pub mod factories;
+
 /// Base trait for domains.
 pub trait Domain {}

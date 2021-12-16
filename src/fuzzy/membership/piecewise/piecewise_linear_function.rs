@@ -68,6 +68,12 @@ impl Display for PiecewiseLinearFunction {
     }
 }
 
+impl Default for PiecewiseLinearFunction {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PiecewiseLinearFunction {
     fn key(inf: f64, sup: f64) -> Result<Quantitative<i32>, QuantitativeError<i32>> {
         Quantitative::new(
@@ -82,36 +88,31 @@ impl PiecewiseLinearFunction {
         for (d_a, f_a) in &self.pieces {
             if !to_remove.contains(d_a) {
                 for (d_b, f_b) in &self.pieces {
-                    if !to_remove.contains(d_a) && !to_remove.contains(d_b) {
-                        if d_a.inf() == d_b.sup() || d_a.sup() == d_a.inf() {
-                            if utilities::math::approx_equal_f64(f_a.slope(), f_b.slope(), 3)
-                                && utilities::math::approx_equal_f64(
-                                    f_a.intercept(),
-                                    f_b.intercept(),
-                                    3,
-                                )
-                            {
-                                to_remove.insert(d_a.clone());
-                                to_remove.insert(d_b.clone());
-                                to_add.insert(
-                                    Quantitative::new(
-                                        cmp::min(d_a.inf(), d_b.inf()),
-                                        cmp::max(d_a.sup(), d_b.sup()),
-                                    )
-                                    .unwrap(),
-                                    f_a.clone(),
-                                );
-                            }
-                        }
+                    if !to_remove.contains(d_a)
+                        && !to_remove.contains(d_b)
+                        && (d_a.inf() == d_b.sup() || d_a.sup() == d_a.inf())
+                        && utilities::math::approx_equal_f64(f_a.slope(), f_b.slope(), 3)
+                        && utilities::math::approx_equal_f64(f_a.intercept(), f_b.intercept(), 3)
+                    {
+                        to_remove.insert(d_a.clone());
+                        to_remove.insert(d_b.clone());
+                        to_add.insert(
+                            Quantitative::new(
+                                cmp::min(d_a.inf(), d_b.inf()),
+                                cmp::max(d_a.sup(), d_b.sup()),
+                            )
+                            .unwrap(),
+                            f_a.clone(),
+                        );
                     }
                 }
             }
         }
 
-        if to_remove.len() > 0 {
+        if !to_remove.is_empty() {
             let mut new_pieces = HashMap::new();
             for (d, f) in &self.pieces {
-                if !to_remove.contains(&d) {
+                if !to_remove.contains(d) {
                     new_pieces.insert((*d).clone(), (*f).clone());
                 }
             }

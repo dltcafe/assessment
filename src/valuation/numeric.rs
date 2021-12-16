@@ -1,6 +1,8 @@
+use crate::domain::quantitative::NORMALIZATION_DOMAIN;
 use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Add, Sub};
 
 /// Numeric valuation.
 #[derive(Debug, PartialEq)]
@@ -35,7 +37,11 @@ impl<T: QuantitativeLimit + Display> Display for NumericError<T> {
 impl<'domain, T: QuantitativeLimit> Valuation for Numeric<'domain, T> {}
 
 // Note: + <Trait> added because clion doesn't detect here correctly the trait_alias feature
-impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T> {
+impl<
+        'domain,
+        T: QuantitativeLimit + Copy + Debug + Display + Into<f64> + Add<Output = T> + Sub<Output = T>,
+    > Numeric<'domain, T>
+{
     /// Creates a new valuation.
     ///
     /// # Arguments
@@ -133,5 +139,54 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display> Numeric<'domain, T>
     /// ```
     pub fn domain(&self) -> &'domain Quantitative<T> {
         self.domain
+    }
+
+    /// Value normalized in domain 0.0 to 1.0.
+    ///
+    /// Note that the type of value is f64.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Numeric;
+    /// # use assessment::domain::Quantitative;
+    /// # pub  use assessment::domain::quantitative::NORMALIZATION_DOMAIN;
+    /// let domain = Quantitative::new(0.0, 10.0).unwrap();
+    /// let valuation = Numeric::new(&domain, 2.0).unwrap();
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), 0.2);
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
+    ///
+    /// let domain = Quantitative::new(-1, 5).unwrap();
+    /// let valuation = Numeric::new(&domain, 2).unwrap();
+    /// let normalized = valuation.normalize();
+    /// assert_eq!(normalized.value(), 0.5);
+    /// assert_eq!(*normalized.domain(), NORMALIZATION_DOMAIN);
+    /// ```
+    pub fn normalize(&self) -> Numeric<f64> {
+        Numeric::<f64> {
+            value: (self.value.into() - self.domain.inf().into())
+                / (self.domain.sup().into() - self.domain.inf().into()),
+            domain: &NORMALIZATION_DOMAIN,
+        }
+    }
+
+    /// Valuation negation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Numeric;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0, 10).unwrap();
+    /// let valuation = Numeric::new(&domain, 2).unwrap();
+    /// let neg = valuation.neg();
+    /// assert_eq!(neg.value(), 8);
+    /// ```
+    pub fn neg(&self) -> Self {
+        Self {
+            domain: self.domain,
+            value: self.domain.sup() + self.domain.inf() - self.value(),
+        }
     }
 }
