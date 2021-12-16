@@ -224,4 +224,33 @@ impl<'domain, T: LabelMembership> Single<'domain, T> {
     pub fn domain(&self) -> &'domain Qualitative<T> {
         self.domain
     }
+
+    /// Valuation negation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Single;
+    /// # use assessment::qualitative_symmetric_domain;
+    /// # use assessment::Valuation;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c", "d", "e"].unwrap();
+    /// assert_eq!(
+    ///     Single::new_by_label_name(&domain, "b").unwrap().neg(),
+    ///     Single::new_by_label_name(&domain, "d").unwrap()
+    /// );
+    /// assert_eq!(
+    ///     Single::new_by_label_name(&domain, "a").unwrap().neg(),
+    ///     Single::new_by_label_name(&domain, "e").unwrap()
+    /// );
+    /// assert_eq!(
+    ///     Single::new_by_label_name(&domain, "c").unwrap().neg(),
+    ///     Single::new_by_label_name(&domain, "c").unwrap()
+    /// );
+    /// ```
+    pub fn neg(&self) -> Self {
+        Self {
+            domain: self.domain,
+            index: self.domain.cardinality() - self.index - 1,
+        }
+    }
 }

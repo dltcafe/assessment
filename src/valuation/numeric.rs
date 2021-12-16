@@ -171,7 +171,7 @@ impl<
         }
     }
 
-    /// Value negation.
+    /// Valuation negation.
     ///
     /// # Examples
     ///

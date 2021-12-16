@@ -512,4 +512,38 @@ impl<'domain, T: LabelMembership> TwoTuple<'domain, T> {
     pub fn domain(&self) -> &'domain Qualitative<T> {
         self.domain
     }
+
+    /// Valuation negation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::TwoTuple;
+    /// # use assessment::qualitative_symmetric_domain;
+    /// # use assessment::Valuation;
+    /// let domain = qualitative_symmetric_domain!["a", "b", "c", "d", "e"].unwrap();
+    /// assert_eq!(
+    ///     TwoTuple::new_by_label_name(&domain, "b", 0.0).unwrap().neg(),
+    ///     TwoTuple::new_by_label_name(&domain, "d", 0.0).unwrap()
+    /// );
+    /// assert_eq!(
+    ///     TwoTuple::new_by_label_name(&domain, "a", 0.25).unwrap().neg(),
+    ///     TwoTuple::new_by_label_name(&domain, "e", -0.25).unwrap()
+    /// );
+    /// assert_eq!(
+    ///     TwoTuple::new_by_label_name(&domain, "c", -0.2).unwrap().neg(),
+    ///     TwoTuple::new_by_label_name(&domain, "c", 0.2).unwrap()
+    /// );
+    /// ```
+    pub fn neg(&self) -> Self {
+        let beta = (self.domain.cardinality() - 1) as f32 - self.inverse_delta();
+        let index = beta.round() as usize;
+        let mut alpha = beta - index as f32;
+        alpha = utilities::math::round_f32(alpha, 5);
+        Self {
+            domain: self.domain,
+            index,
+            alpha,
+        }
+    }
 }
