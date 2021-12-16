@@ -143,8 +143,8 @@ where
 /// assert_eq!(interval.value(), expected);
 /// ```
 ///
-impl<'domain, T: QuantitativeLimit + Into<f64>> TryFrom<&Numeric<'domain, T>>
-    for Interval<'domain, T>
+impl<'domain, T: QuantitativeLimit + Into<f64> + Add<Output = T> + Sub<Output = T>>
+    TryFrom<&Numeric<'domain, T>> for Interval<'domain, T>
 {
     type Error = IntervalError<T>;
 
@@ -157,8 +157,8 @@ impl<'domain, T: QuantitativeLimit + Into<f64>> TryFrom<&Numeric<'domain, T>>
 ///
 /// Wrapper of Interval::try_from(&Numeric).
 ///
-impl<'domain, T: QuantitativeLimit + Into<f64>> TryFrom<Numeric<'domain, T>>
-    for Interval<'domain, T>
+impl<'domain, T: QuantitativeLimit + Into<f64> + Add<Output = T> + Sub<Output = T>>
+    TryFrom<Numeric<'domain, T>> for Interval<'domain, T>
 {
     type Error = IntervalError<T>;
 

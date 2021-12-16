@@ -2,6 +2,7 @@ use crate::domain::quantitative::NORMALIZATION_DOMAIN;
 use crate::domain::{Quantitative, QuantitativeLimit};
 use crate::Valuation;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Add, Sub};
 
 /// Numeric valuation.
 #[derive(Debug, PartialEq)]
@@ -36,7 +37,11 @@ impl<T: QuantitativeLimit + Display> Display for NumericError<T> {
 impl<'domain, T: QuantitativeLimit> Valuation for Numeric<'domain, T> {}
 
 // Note: + <Trait> added because clion doesn't detect here correctly the trait_alias feature
-impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Numeric<'domain, T> {
+impl<
+        'domain,
+        T: QuantitativeLimit + Copy + Debug + Display + Into<f64> + Add<Output = T> + Sub<Output = T>,
+    > Numeric<'domain, T>
+{
     /// Creates a new valuation.
     ///
     /// # Arguments
@@ -163,6 +168,25 @@ impl<'domain, T: QuantitativeLimit + Copy + Debug + Display + Into<f64>> Numeric
             value: (self.value.into() - self.domain.inf().into())
                 / (self.domain.sup().into() - self.domain.inf().into()),
             domain: &NORMALIZATION_DOMAIN,
+        }
+    }
+
+    /// Value negation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use assessment::valuation::Numeric;
+    /// # use assessment::domain::Quantitative;
+    /// let domain = Quantitative::new(0, 10).unwrap();
+    /// let valuation = Numeric::new(&domain, 2).unwrap();
+    /// let neg = valuation.neg();
+    /// assert_eq!(neg.value(), 8);
+    /// ```
+    pub fn neg(&self) -> Self {
+        Self {
+            domain: self.domain,
+            value: self.domain.sup() + self.domain.inf() - self.value(),
         }
     }
 }
