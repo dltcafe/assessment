@@ -2,6 +2,10 @@
 name = "assessment"
 version = "1.0.0"
 edition = "2021"
+license = "MIT"
+description = "A library that allows different types of assessments, to convert between them and to perform basic operations."
+repository = "https://github.com/dltcafe/assessment/"
+readme = "README.md"
 
 [dependencies]
 impl_ops = "0.1.1"
